@@ -5,16 +5,20 @@ on:
     branches:
       - main
       - develop
+  pull_request:
+    branches:
+      - main
+      - develop
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
 
     env:
       JAVA_VERSION: "21"
 
     steps:
-      - name: Checkout repo
+      - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Set up JDK
@@ -22,12 +26,3 @@ jobs:
         with:
           distribution: "temurin"
           java-version: ${{ env.JAVA_VERSION }}
-
-      - name: Set active Spring profile based on branch
-        run: echo "SPRING_PROFILES_ACTIVE=$([[ $GITHUB_REF == refs/heads/main ]] && echo prod || echo dev)" >> $GITHUB_ENV
-
-      - name: Build with Maven
-        run: ./mvnw clean package -DskipTests
-
-      - name: Run app with selected profile
-        run: java -jar target/*.jar --spring.profiles.active=${{ env.SPRING_PROFILES_ACTIVE }}
