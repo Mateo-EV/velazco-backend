@@ -1,5 +1,7 @@
 package com.velazco.velazco_backend.entities;
 
+import java.math.BigDecimal;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -32,5 +34,5 @@ public class OrderDetail {
   private Integer quantity;
 
   @Column(name = "precio_unitario", precision = 10, scale = 2, nullable = false)
-  private Double unitPrice;
+  private BigDecimal unitPrice;
 }

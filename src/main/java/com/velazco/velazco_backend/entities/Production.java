@@ -24,7 +24,6 @@ import lombok.NoArgsConstructor;
 public class Production {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
   private Integer id;
 
   @Column(name = "fecha_produccion", nullable = false)

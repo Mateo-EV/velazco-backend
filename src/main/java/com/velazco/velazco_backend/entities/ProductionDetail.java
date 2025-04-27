@@ -23,6 +23,11 @@ public class ProductionDetail {
   @JoinColumn(name = "produccion_id", nullable = false)
   private Production production;
 
+  @ManyToOne
+  @MapsId("productId")
+  @JoinColumn(name = "producto_id", nullable = false)
+  private Product product;
+
   @Column(name = "cantidad_solicitada", nullable = false)
   private Integer requestedQuantity;
 

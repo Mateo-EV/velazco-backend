@@ -38,7 +38,7 @@ public class User {
 
   @ManyToOne
   @JoinColumn(name = "rol_id", nullable = false)
-  private Rol rol;
+  private Role role;
 
   @OneToMany(mappedBy = "attendedBy")
   private List<Order> attendedOrders;

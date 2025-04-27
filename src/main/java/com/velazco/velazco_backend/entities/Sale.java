@@ -1,5 +1,6 @@
 package com.velazco.velazco_backend.entities;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -21,7 +22,6 @@ import lombok.NoArgsConstructor;
 public class Sale {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "id")
   private Integer id;
 
   @Column(name = "fecha_venta", nullable = false)
@@ -31,7 +31,7 @@ public class Sale {
   private String paymentMethod;
 
   @Column(name = "monto_total", precision = 10, scale = 2, nullable = false)
-  private Double totalAmount;
+  private BigDecimal totalAmount;
 
   @OneToOne
   @JoinColumn(name = "pedido_id", nullable = false, unique = true)
