@@ -81,7 +81,6 @@ public class ProductControllerTest {
         .price(BigDecimal.valueOf(20.00))
         .stock(10)
         .active(true)
-        .categoryId(1L)
         .category(ProductCreateResponseDto.CategoryProductCreateResponseDto.builder()
             .id(1L)
             .name("Desserts")
@@ -102,7 +101,6 @@ public class ProductControllerTest {
         .andExpect(jsonPath("$.price").value(20.00))
         .andExpect(jsonPath("$.stock").value(10))
         .andExpect(jsonPath("$.active").value(true))
-        .andExpect(jsonPath("$.categoryId").value(1L))
         .andExpect(jsonPath("$.category.id").value(1L))
         .andExpect(jsonPath("$.category.name").value("Desserts"));
   }

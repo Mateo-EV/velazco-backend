@@ -1,5 +1,7 @@
 package com.velazco.velazco_backend.services.impl;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.velazco.velazco_backend.entities.Category;
@@ -20,6 +22,11 @@ public class ProductServiceImpl implements ProductService {
       CategoryRepository categoryRepository) {
     this.categoryRepository = categoryRepository;
     this.productRepository = productRepository;
+  }
+
+  @Override
+  public List<Product> getAllProducts() {
+      return productRepository.findAll();
   }
 
   @Override
