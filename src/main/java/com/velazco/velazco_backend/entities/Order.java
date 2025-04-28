@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 public class Order {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Integer id;
+  private Long id;
 
   @Column(name = "fecha_pedido", nullable = false)
   private LocalDateTime date;
