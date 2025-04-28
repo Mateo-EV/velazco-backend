@@ -10,14 +10,21 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.velazco.velazco_backend.dto.product.requests.ProductCreateRequestDto;
 import com.velazco.velazco_backend.dto.product.requests.ProductUpdateActiveRequestDto;
+import com.velazco.velazco_backend.dto.product.responses.ProductCreateResponseDto;
 import com.velazco.velazco_backend.dto.product.responses.ProductUpdateActiveResponseDto;
+import com.velazco.velazco_backend.entities.Category;
 import com.velazco.velazco_backend.entities.Product;
 import com.velazco.velazco_backend.mappers.ProductMapper;
 import com.velazco.velazco_backend.services.ProductService;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.math.BigDecimal;
+
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 
@@ -35,6 +42,70 @@ public class ProductControllerTest {
 
   @Autowired
   private ObjectMapper objectMapper;
+
+  @Test
+  @WithMockUser
+  void shouldCreateProduct() throws Exception {
+    ProductCreateRequestDto requestDTO = ProductCreateRequestDto.builder()
+        .name("Chocolate Cake")
+        .price(BigDecimal.valueOf(20.00))
+        .stock(10)
+        .active(true)
+        .categoryId(1L)
+        .build();
+
+    Product mappedEntity = new Product();
+    mappedEntity.setId(null);
+    mappedEntity.setName("Chocolate Cake");
+    mappedEntity.setPrice(BigDecimal.valueOf(20.00));
+    mappedEntity.setStock(10);
+    mappedEntity.setActive(true);
+
+    Product savedEntity = new Product();
+    savedEntity.setId(1L);
+    savedEntity.setName("Chocolate Cake");
+    savedEntity.setPrice(BigDecimal.valueOf(20.00));
+    savedEntity.setStock(10);
+    savedEntity.setActive(true);
+
+    Category category = new Category();
+    category.setId(1L);
+    category.setName("Desserts");
+    savedEntity.setCategory(category);
+
+
+
+    ProductCreateResponseDto responseDTO = ProductCreateResponseDto.builder()
+        .id(1)
+        .name("Chocolate Cake")
+        .price(BigDecimal.valueOf(20.00))
+        .stock(10)
+        .active(true)
+        .categoryId(1L)
+        .category(ProductCreateResponseDto.CategoryProductCreateResponseDto.builder()
+            .id(1L)
+            .name("Desserts")
+            .build())
+        .build();
+
+    Mockito.when(productMapper.toEntity(any(ProductCreateRequestDto.class))).thenReturn(mappedEntity);
+    Mockito.when(productService.createProduct(any(Product.class))).thenReturn(savedEntity);
+    Mockito.when(productMapper.toCreateResponse(any(Product.class))).thenReturn(responseDTO);
+
+    mockMvc.perform(post("/api/products")
+        .with(csrf())
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(requestDTO)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.id").value(1))
+        .andExpect(jsonPath("$.name").value("Chocolate Cake"))
+        .andExpect(jsonPath("$.price").value(20.00))
+        .andExpect(jsonPath("$.stock").value(10))
+        .andExpect(jsonPath("$.active").value(true))
+        .andExpect(jsonPath("$.categoryId").value(1L))
+        .andExpect(jsonPath("$.category.id").value(1L))
+        .andExpect(jsonPath("$.category.name").value("Desserts"));
+  }
 
   @Test
   @WithMockUser

@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 public class Production {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Integer id;
+  private Long id;
 
   @Column(name = "fecha_produccion", nullable = false)
   private LocalDateTime productionDate;

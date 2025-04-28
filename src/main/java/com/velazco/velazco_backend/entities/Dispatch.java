@@ -21,7 +21,7 @@ import lombok.NoArgsConstructor;
 public class Dispatch {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Integer id;
+  private Long id;
 
   @Column(name = "fecha_entrega", nullable = false)
   private LocalDateTime deliveryDate;
