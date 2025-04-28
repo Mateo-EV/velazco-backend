@@ -2,7 +2,9 @@ package com.velazco.velazco_backend.services.impl;
 
 import org.springframework.stereotype.Service;
 
+import com.velazco.velazco_backend.entities.Category;
 import com.velazco.velazco_backend.entities.Product;
+import com.velazco.velazco_backend.repositories.CategoryRepository;
 import com.velazco.velazco_backend.repositories.ProductRepository;
 import com.velazco.velazco_backend.services.ProductService;
 
@@ -12,13 +14,21 @@ import jakarta.persistence.EntityNotFoundException;
 public class ProductServiceImpl implements ProductService {
 
   private final ProductRepository productRepository;
+  private final CategoryRepository categoryRepository;
 
-  public ProductServiceImpl(ProductRepository productRepository) {
+  public ProductServiceImpl(ProductRepository productRepository,
+      CategoryRepository categoryRepository) {
+    this.categoryRepository = categoryRepository;
     this.productRepository = productRepository;
   }
 
   @Override
   public Product createProduct(Product product) {
+    Category category = categoryRepository.findById(product.getCategory().getId())
+        .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+
+    product.setCategory(category);
+
     return productRepository.save(product);
   }
 

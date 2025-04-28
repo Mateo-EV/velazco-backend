@@ -38,9 +38,9 @@ public class ProductController {
   public ResponseEntity<ProductCreateResponseDto> createProduct(
       @Valid @RequestBody ProductCreateRequestDto requestDTO) {
     Product product = productMapper.toEntity(requestDTO);
-    // entity.setCategory(productService.findCategoryById(requestDTO.getCategoryId()));
 
     Product savedProduct = productService.createProduct(product);
+    
     return ResponseEntity.status(HttpStatus.CREATED).body(productMapper.toCreateResponse(savedProduct));
   }
 

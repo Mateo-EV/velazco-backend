@@ -12,11 +12,23 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ProductCreateResponseDto {
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @Builder
+    static public class CategoryProductCreateResponseDto {
+        private Long id;
+        private String name;
+    }
+
     private Integer id;
     private String name;
     private BigDecimal price;
     private Integer stock;
     // private String image;
     private Boolean active;
+    private Long categoryId;
+
+    private CategoryProductCreateResponseDto category;
     // private String categoryName;
 }
