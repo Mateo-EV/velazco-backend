@@ -24,4 +24,14 @@ public class ProductServiceImpl implements ProductService {
 
     productRepository.delete(product);
   }
+
+  @Override
+  public Product updateProductActive(Long id, Boolean active) {
+    Product product = productRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+
+    product.setActive(active);
+
+    return productRepository.save(product);
+  }
 }
