@@ -1,10 +1,14 @@
 package com.velazco.velazco_backend.services;
 
+import java.util.List;
+
 import com.velazco.velazco_backend.entities.Product;
 
 public interface ProductService {
 
-  public Product createProduct(Product product);
+  List<Product> getAllProducts();
+
+  Product createProduct(Product product);
 
   void deleteProductById(Long id);
 

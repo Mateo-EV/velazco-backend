@@ -1,8 +1,11 @@
 package com.velazco.velazco_backend.controllers;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.velazco.velazco_backend.dto.product.requests.ProductCreateRequestDto;
 import com.velazco.velazco_backend.dto.product.requests.ProductUpdateActiveRequestDto;
 import com.velazco.velazco_backend.dto.product.responses.ProductCreateResponseDto;
+import com.velazco.velazco_backend.dto.product.responses.ProductListResponseDto;
 import com.velazco.velazco_backend.dto.product.responses.ProductUpdateActiveResponseDto;
 import com.velazco.velazco_backend.entities.Product;
 import com.velazco.velazco_backend.mappers.ProductMapper;
@@ -32,6 +36,12 @@ public class ProductController {
       ProductMapper productMapper) {
     this.productService = productService;
     this.productMapper = productMapper;
+  }
+
+  @GetMapping
+  public ResponseEntity<List<ProductListResponseDto>> getAllProducts() {
+    List<Product> products = productService.getAllProducts();
+    return ResponseEntity.ok(productMapper.toListResponse(products));
   }
 
   @PostMapping

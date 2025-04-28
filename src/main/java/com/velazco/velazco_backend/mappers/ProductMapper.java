@@ -1,10 +1,13 @@
 package com.velazco.velazco_backend.mappers;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import com.velazco.velazco_backend.dto.product.requests.ProductCreateRequestDto;
 import com.velazco.velazco_backend.dto.product.responses.ProductCreateResponseDto;
+import com.velazco.velazco_backend.dto.product.responses.ProductListResponseDto;
 import com.velazco.velazco_backend.dto.product.responses.ProductUpdateActiveResponseDto;
 import com.velazco.velazco_backend.entities.Product;
 
@@ -12,6 +15,8 @@ import com.velazco.velazco_backend.entities.Product;
 public interface ProductMapper {
 
   ProductCreateResponseDto toCreateResponse(Product product);
+
+  List<ProductListResponseDto> toListResponse(List<Product> product);
 
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "image", ignore = true)
