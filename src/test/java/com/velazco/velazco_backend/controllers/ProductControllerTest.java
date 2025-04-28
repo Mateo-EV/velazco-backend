@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.velazco.velazco_backend.dto.product.requests.ProductCreateRequestDto;
 import com.velazco.velazco_backend.dto.product.requests.ProductUpdateActiveRequestDto;
 import com.velazco.velazco_backend.dto.product.responses.ProductCreateResponseDto;
+import com.velazco.velazco_backend.dto.product.responses.ProductListResponseDto;
 import com.velazco.velazco_backend.dto.product.responses.ProductUpdateActiveResponseDto;
 import com.velazco.velazco_backend.entities.Category;
 import com.velazco.velazco_backend.entities.Product;
@@ -23,6 +24,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -42,6 +44,59 @@ public class ProductControllerTest {
 
   @Autowired
   private ObjectMapper objectMapper;
+
+  @Test
+  @WithMockUser
+  void shouldGetAllProductsSuccessfully() throws Exception {
+
+    Product productEntity = new Product();
+    productEntity.setId(1L);
+    productEntity.setName("Chocolate Cake");
+    productEntity.setPrice(BigDecimal.valueOf(20.00));
+    productEntity.setStock(10);
+    productEntity.setActive(true);
+
+    Category category = new Category();
+    category.setId(2L);
+    category.setName("Pasteles");
+    productEntity.setCategory(category);
+
+    List<Product> productEntities = List.of(productEntity);
+
+    ProductListResponseDto.CategoryProductListResponseDto categoryDTO = ProductListResponseDto.CategoryProductListResponseDto
+        .builder()
+        .id(2L)
+        .name("Pasteles")
+        .build();
+
+    ProductListResponseDto productDTO = ProductListResponseDto.builder()
+        .id(1)
+        .name("Chocolate Cake")
+        .price(BigDecimal.valueOf(20.00))
+        .stock(10)
+        .active(true)
+        .category(categoryDTO)
+        .build();
+
+    List<ProductListResponseDto> productDTOs = List.of(productDTO);
+
+    // 2. Mockeo del comportamiento esperado
+    Mockito.when(productService.getAllProducts()).thenReturn(productEntities);
+    Mockito.when(productMapper.toListResponse(productEntities)).thenReturn(productDTOs);
+
+    // 3. Ejecutar llamada HTTP simulada
+    mockMvc.perform(get("/api/products")
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(1))
+        .andExpect(jsonPath("$[0].id").value(1))
+        .andExpect(jsonPath("$[0].name").value("Chocolate Cake"))
+        .andExpect(jsonPath("$[0].price").value(20.00))
+        .andExpect(jsonPath("$[0].stock").value(10))
+        .andExpect(jsonPath("$[0].active").value(true))
+        .andExpect(jsonPath("$[0].category.id").value(2))
+        .andExpect(jsonPath("$[0].category.name").value("Pasteles"));
+  }
 
   @Test
   @WithMockUser
@@ -72,8 +127,6 @@ public class ProductControllerTest {
     category.setId(1L);
     category.setName("Desserts");
     savedEntity.setCategory(category);
-
-
 
     ProductCreateResponseDto responseDTO = ProductCreateResponseDto.builder()
         .id(1)
