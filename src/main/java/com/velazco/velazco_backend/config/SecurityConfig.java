@@ -12,11 +12,13 @@ public class SecurityConfig {
 
   @Bean
   SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http.authorizeHttpRequests(
-        auth -> auth.requestMatchers("/**")
-            .permitAll()
-            .anyRequest()
-            .authenticated())
+    http
+        .csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(
+            auth -> auth.requestMatchers("/**")
+                .permitAll()
+                .anyRequest()
+                .authenticated())
         .httpBasic(basic -> basic.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
         .formLogin(form -> form.disable())
         .logout(logout -> logout.disable());
