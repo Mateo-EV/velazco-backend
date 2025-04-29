@@ -19,13 +19,13 @@ public class OpenApiConfig {
   @Bean
   OpenAPI customOpenAPI() {
     Server server = new Server();
-    server.setUrl(backendBaseUrl); // 🔥 FORZAMOS https
+    server.setUrl(backendBaseUrl);
 
     return new OpenAPI()
         .info(new Info()
             .title("Velazco API")
             .version("1.0")
             .description("Documentación de la API"))
-        .servers(List.of(server)); // 👈 Aquí sobreescribimos el server
+        .servers(List.of(server));
   }
 }
