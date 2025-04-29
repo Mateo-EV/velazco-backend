@@ -33,9 +33,9 @@ jobs:
       - name: Run Tests
         run: mvn test
 
-      - name: Deploy to Railway using API Token
-        run: |
-          curl -X POST https://backboard.railway.app/v2/deployments \
-          -H "Authorization: Bearer ${{ secrets.RAILWAY_API_TOKEN }}" \
-          -H "Content-Type: application/json" \
-          -d '{"projectId": "${{ secrets.RAILWAY_PROJECT_ID }}"}'
+      # - name: Deploy to Railway using API Token
+      #   run: |
+      #     curl -X POST https://backboard.railway.app/v2/deployments \
+      #     -H "Authorization: Bearer ${{ secrets.RAILWAY_API_TOKEN }}" \
+      #     -H "Content-Type: application/json" \
+      #     -d '{"projectId": "${{ secrets.RAILWAY_PROJECT_ID }}"}'
