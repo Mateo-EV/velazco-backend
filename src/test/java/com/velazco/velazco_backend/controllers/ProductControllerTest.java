@@ -12,9 +12,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.velazco.velazco_backend.dto.product.requests.ProductCreateRequestDto;
 import com.velazco.velazco_backend.dto.product.requests.ProductUpdateActiveRequestDto;
+import com.velazco.velazco_backend.dto.product.requests.ProductUpdateRequestDto;
 import com.velazco.velazco_backend.dto.product.responses.ProductCreateResponseDto;
 import com.velazco.velazco_backend.dto.product.responses.ProductListResponseDto;
 import com.velazco.velazco_backend.dto.product.responses.ProductUpdateActiveResponseDto;
+import com.velazco.velazco_backend.dto.product.responses.ProductUpdateResponseDto;
 import com.velazco.velazco_backend.entities.Category;
 import com.velazco.velazco_backend.entities.Product;
 import com.velazco.velazco_backend.mappers.ProductMapper;
@@ -151,6 +153,71 @@ public class ProductControllerTest {
                                 .andExpect(jsonPath("$.name").value("Chocolate Cake"))
                                 .andExpect(jsonPath("$.price").value(20.00))
                                 .andExpect(jsonPath("$.stock").value(10))
+                                .andExpect(jsonPath("$.active").value(true))
+                                .andExpect(jsonPath("$.category.id").value(1L))
+                                .andExpect(jsonPath("$.category.name").value("Desserts"));
+        }
+
+        @Test
+        @WithMockUser
+        void shouldUpdateProduct() throws Exception {
+                ProductUpdateRequestDto requestDTO = ProductUpdateRequestDto.builder()
+                                .name("Updated Cake")
+                                .price(BigDecimal.valueOf(25))
+                                .stock(5)
+                                .active(true)
+                                .categoryId(1L)
+                                .build();
+
+                Category category = new Category();
+                category.setId(1L);
+                Category categoryFound = new Category();
+
+                categoryFound.setId(1L);
+                categoryFound.setName("Desserts");
+
+                Product mappedEntity = new Product();
+                mappedEntity.setId(1L);
+                mappedEntity.setName("Updated Cake");
+                mappedEntity.setPrice(BigDecimal.valueOf(20.00));
+                mappedEntity.setStock(10);
+                mappedEntity.setActive(true);
+
+                Product updatedEntity = new Product();
+                updatedEntity.setId(1L);
+                updatedEntity.setName("Updated Cake");
+                updatedEntity.setPrice(BigDecimal.valueOf(20.00));
+                updatedEntity.setStock(10);
+                updatedEntity.setActive(true);
+
+                updatedEntity.setCategory(categoryFound);
+
+                mappedEntity.setCategory(category);
+
+                ProductUpdateResponseDto responseDTO = ProductUpdateResponseDto.builder()
+                                .id(1L)
+                                .name("Updated Cake")
+                                .price(BigDecimal.valueOf(25))
+                                .stock(5)
+                                .active(true)
+                                .category(ProductUpdateResponseDto.CategoryProductUpdateResponseDto.builder()
+                                                .id(1L)
+                                                .name("Desserts")
+                                                .build())
+                                .build();
+
+                Mockito.when(productMapper.toEntity(any(ProductUpdateRequestDto.class))).thenReturn(mappedEntity);
+                Mockito.when(productService.updateProduct(eq(1L), any(Product.class))).thenReturn(updatedEntity);
+                Mockito.when(productMapper.toUpdateResponse(updatedEntity)).thenReturn(responseDTO);
+
+                mockMvc.perform(put("/api/products/1").with(csrf())
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(requestDTO)))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.id").value(1))
+                                .andExpect(jsonPath("$.name").value("Updated Cake"))
+                                .andExpect(jsonPath("$.price").value(25.00))
+                                .andExpect(jsonPath("$.stock").value(5))
                                 .andExpect(jsonPath("$.active").value(true))
                                 .andExpect(jsonPath("$.category.id").value(1L))
                                 .andExpect(jsonPath("$.category.name").value("Desserts"));
