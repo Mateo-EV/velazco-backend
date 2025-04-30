@@ -9,15 +9,18 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.velazco.velazco_backend.dto.product.requests.ProductCreateRequestDto;
 import com.velazco.velazco_backend.dto.product.requests.ProductUpdateActiveRequestDto;
+import com.velazco.velazco_backend.dto.product.requests.ProductUpdateRequestDto;
 import com.velazco.velazco_backend.dto.product.responses.ProductCreateResponseDto;
 import com.velazco.velazco_backend.dto.product.responses.ProductListResponseDto;
 import com.velazco.velazco_backend.dto.product.responses.ProductUpdateActiveResponseDto;
+import com.velazco.velazco_backend.dto.product.responses.ProductUpdateResponseDto;
 import com.velazco.velazco_backend.entities.Product;
 import com.velazco.velazco_backend.mappers.ProductMapper;
 import com.velazco.velazco_backend.services.ProductService;
@@ -50,8 +53,17 @@ public class ProductController {
     Product product = productMapper.toEntity(requestDTO);
 
     Product savedProduct = productService.createProduct(product);
-    
+
     return ResponseEntity.status(HttpStatus.CREATED).body(productMapper.toCreateResponse(savedProduct));
+  }
+
+  @PutMapping("/{id}")
+  public ResponseEntity<ProductUpdateResponseDto> updateProduct(@PathVariable Long id,
+      @Valid @RequestBody ProductUpdateRequestDto requestDTO) {
+    Product entity = productMapper.toEntity(requestDTO);
+
+    Product updatedProduct = productService.updateProduct(id, entity);
+    return ResponseEntity.ok(productMapper.toUpdateResponse(updatedProduct));
   }
 
   @PatchMapping("/{id}/active")
@@ -68,4 +80,5 @@ public class ProductController {
     productService.deleteProductById(id);
     return ResponseEntity.noContent().build();
   }
+
 }

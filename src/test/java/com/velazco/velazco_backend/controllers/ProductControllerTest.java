@@ -127,7 +127,7 @@ public class ProductControllerTest {
                 savedEntity.setCategory(category);
 
                 ProductCreateResponseDto responseDTO = ProductCreateResponseDto.builder()
-                                .id(1)
+                                .id(1L)
                                 .name("Chocolate Cake")
                                 .price(BigDecimal.valueOf(20.00))
                                 .stock(10)
