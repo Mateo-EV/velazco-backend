@@ -1,0 +1,61 @@
+package com.velazco.velazco_backend.controllers;
+
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+import com.velazco.velazco_backend.entities.Category;
+import com.velazco.velazco_backend.mappers.CategoryMapper;
+import com.velazco.velazco_backend.services.CategoryService;
+import com.velazco.velazco_backend.dto.category.responses.CategoryListResponseDto;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+import java.util.List;
+
+@WebMvcTest(CategoryController.class)
+public class CategoryControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @MockitoBean
+    private CategoryService categoryService;
+
+    @MockitoBean
+    private CategoryMapper categoryMapper;
+
+    @Test
+    @WithMockUser
+    void shouldGetAllCategoriesSuccessfully() throws Exception {
+
+        Category categoryEntity = new Category();
+        categoryEntity.setId(1L);
+        categoryEntity.setName("Pasteles");
+
+        List<Category> categoryEntities = List.of(categoryEntity);
+
+        CategoryListResponseDto categoryDTO = CategoryListResponseDto
+                .builder()
+                .id(1L)
+                .name("Pasteles")
+                .build();
+
+        List<CategoryListResponseDto> categoriesDTOs = List.of(categoryDTO);
+
+        Mockito.when(categoryService.getAllCategories()).thenReturn(categoryEntities);
+        Mockito.when(categoryMapper.toListResponse(categoryEntities)).thenReturn(categoriesDTOs);
+
+        mockMvc.perform(get("/api/categories")
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(1))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].name").value("Pasteles"));
+    }
+
+}
