@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/roles")
 public class RoleController {
-
+  @SuppressWarnings("unused")
   private final RoleService roleService;
 
   public RoleController(RoleService roleService) {

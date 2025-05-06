@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class DispatchServiceImpl implements DispatchService {
-
+  @SuppressWarnings("unused")
   private final DispatchRepository dispatchRepository;
 
   public DispatchServiceImpl(DispatchRepository dispatchRepository) {

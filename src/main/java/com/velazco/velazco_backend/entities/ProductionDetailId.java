@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ProductionDetailId {
   @Column(name = "produccion_id")
-  private Integer productionId;
+  private Long productionId;
 
   @Column(name = "producto_id")
-  private Integer productId;
+  private Long productId;
 }

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/productions")
 public class ProductionController {
-
+  @SuppressWarnings("unused")
   private final ProductionService productionService;
 
   public ProductionController(ProductionService productionService) {
