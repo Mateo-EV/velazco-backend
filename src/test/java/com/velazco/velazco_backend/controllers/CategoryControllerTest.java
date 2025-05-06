@@ -12,6 +12,8 @@ import com.velazco.velazco_backend.entities.Category;
 import com.velazco.velazco_backend.mappers.CategoryMapper;
 import com.velazco.velazco_backend.services.CategoryService;
 import com.velazco.velazco_backend.dto.category.responses.CategoryListResponseDto;
+
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -20,42 +22,51 @@ import java.util.List;
 @WebMvcTest(CategoryController.class)
 public class CategoryControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    @MockitoBean
-    private CategoryService categoryService;
+  @MockitoBean
+  private CategoryService categoryService;
 
-    @MockitoBean
-    private CategoryMapper categoryMapper;
+  @MockitoBean
+  private CategoryMapper categoryMapper;
 
-    @Test
-    @WithMockUser
-    void shouldGetAllCategoriesSuccessfully() throws Exception {
+  @Test
+  @WithMockUser
+  void shouldGetAllCategoriesSuccessfully() throws Exception {
 
-        Category categoryEntity = new Category();
-        categoryEntity.setId(1L);
-        categoryEntity.setName("Pasteles");
+    Category categoryEntity = new Category();
+    categoryEntity.setId(1L);
+    categoryEntity.setName("Pasteles");
 
-        List<Category> categoryEntities = List.of(categoryEntity);
+    List<Category> categoryEntities = List.of(categoryEntity);
 
-        CategoryListResponseDto categoryDTO = CategoryListResponseDto
-                .builder()
-                .id(1L)
-                .name("Pasteles")
-                .build();
+    CategoryListResponseDto categoryDTO = CategoryListResponseDto
+        .builder()
+        .id(1L)
+        .name("Pasteles")
+        .build();
 
-        List<CategoryListResponseDto> categoriesDTOs = List.of(categoryDTO);
+    List<CategoryListResponseDto> categoriesDTOs = List.of(categoryDTO);
 
-        Mockito.when(categoryService.getAllCategories()).thenReturn(categoryEntities);
-        Mockito.when(categoryMapper.toListResponse(categoryEntities)).thenReturn(categoriesDTOs);
+    Mockito.when(categoryService.getAllCategories()).thenReturn(categoryEntities);
+    Mockito.when(categoryMapper.toListResponse(categoryEntities)).thenReturn(categoriesDTOs);
 
-        mockMvc.perform(get("/api/categories")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].name").value("Pasteles"));
-    }
+    mockMvc.perform(get("/api/categories")
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(1))
+        .andExpect(jsonPath("$[0].id").value(1))
+        .andExpect(jsonPath("$[0].name").value("Pasteles"));
+  }
+
+  @Test
+  @WithMockUser
+  void shouldDeleteCategory() throws Exception {
+    Mockito.doNothing().when(categoryService).deleteCategoryById(1L);
+
+    mockMvc.perform(delete("/api/categories/1").with(csrf()))
+        .andExpect(status().isNoContent());
+  }
 
 }
