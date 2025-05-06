@@ -26,11 +26,26 @@ public class ProductServiceImpl implements ProductService {
 
   @Override
   public List<Product> getAllProducts() {
-      return productRepository.findAll();
+    return productRepository.findAll();
   }
 
   @Override
   public Product createProduct(Product product) {
+    Category category = categoryRepository.findById(product.getCategory().getId())
+        .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+
+    product.setCategory(category);
+
+    return productRepository.save(product);
+  }
+
+  @Override
+  public Product updateProduct(Long id, Product product) {
+    Product existing = productRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+
+    product.setId(existing.getId());
+
     Category category = categoryRepository.findById(product.getCategory().getId())
         .orElseThrow(() -> new EntityNotFoundException("Category not found"));
 
