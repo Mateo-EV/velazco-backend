@@ -12,11 +12,16 @@ import com.velazco.velazco_backend.entities.Category;
 import com.velazco.velazco_backend.mappers.CategoryMapper;
 import com.velazco.velazco_backend.services.CategoryService;
 import com.velazco.velazco_backend.dto.category.responses.CategoryListResponseDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.velazco.velazco_backend.dto.category.requests.CategoryCreateRequestDto;
+import com.velazco.velazco_backend.dto.category.responses.CategoryCreateResponseDto;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @WebMvcTest(CategoryController.class)
@@ -30,6 +35,9 @@ public class CategoryControllerTest {
 
   @MockitoBean
   private CategoryMapper categoryMapper;
+
+  @Autowired
+  private ObjectMapper objectMapper;
 
   @Test
   @WithMockUser
@@ -58,6 +66,39 @@ public class CategoryControllerTest {
         .andExpect(jsonPath("$.length()").value(1))
         .andExpect(jsonPath("$[0].id").value(1))
         .andExpect(jsonPath("$[0].name").value("Pasteles"));
+  }
+
+  @Test
+  @WithMockUser
+  void shouldCreateCategory() throws Exception {
+    CategoryCreateRequestDto requestDTO = CategoryCreateRequestDto.builder()
+        .name("Cakes")
+        .build();
+
+    Category mappedEntity = new Category();
+    mappedEntity.setId(null);
+    mappedEntity.setName("Cakes");
+
+    Category savedEntity = new Category();
+    savedEntity.setId(1L);
+    savedEntity.setName("Cakes");
+
+    CategoryCreateResponseDto responseDTO = CategoryCreateResponseDto.builder()
+        .id(1L)
+        .name("Cakes")
+        .build();
+
+    Mockito.when(categoryMapper.toEntity(any(CategoryCreateRequestDto.class))).thenReturn(mappedEntity);
+    Mockito.when(categoryService.createCategory(any(Category.class))).thenReturn(savedEntity);
+    Mockito.when(categoryMapper.toCreateResponse(any(Category.class))).thenReturn(responseDTO);
+
+    mockMvc.perform(post("/api/categories")
+        .with(csrf())
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(requestDTO)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.id").value(1))
+        .andExpect(jsonPath("$.name").value("Cakes"));
   }
 
   @Test
