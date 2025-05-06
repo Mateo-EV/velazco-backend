@@ -14,8 +14,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class OrderDetailId implements Serializable {
   @Column(name = "pedido_id")
-  private Integer orderId;
+  private Long orderId;
 
   @Column(name = "producto_id")
-  private Integer productId;
+  private Long productId;
 }

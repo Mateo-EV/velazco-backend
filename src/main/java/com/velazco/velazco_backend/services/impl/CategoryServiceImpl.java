@@ -5,6 +5,8 @@ import com.velazco.velazco_backend.entities.Product;
 import com.velazco.velazco_backend.repositories.CategoryRepository;
 import com.velazco.velazco_backend.services.CategoryService;
 
+import jakarta.persistence.EntityNotFoundException;
+
 import java.util.List;
 
 import org.springframework.stereotype.Service;
@@ -21,6 +23,14 @@ public class CategoryServiceImpl implements CategoryService {
   @Override
   public List<Category> getAllCategories() {
     return categoryRepository.findAll();
+  }
+
+  @Override
+  public void deleteCategoryById(Long id) {
+    Category category = categoryRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+
+    categoryRepository.delete(category);
   }
 
 }

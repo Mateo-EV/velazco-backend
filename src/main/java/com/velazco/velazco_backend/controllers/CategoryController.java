@@ -8,7 +8,9 @@ import com.velazco.velazco_backend.services.CategoryService;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -28,5 +30,11 @@ public class CategoryController {
   public ResponseEntity<List<CategoryListResponseDto>> getAllCategories() {
     List<Category> categories = categoryService.getAllCategories();
     return ResponseEntity.ok(categoryMapper.toListResponse(categories));
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<Void> deleteCategory(@PathVariable Long id) {
+    categoryService.deleteCategoryById(id);
+    return ResponseEntity.noContent().build();
   }
 }
