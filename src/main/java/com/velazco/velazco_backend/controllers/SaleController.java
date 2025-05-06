@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/sales")
 public class SaleController {
-
+  @SuppressWarnings("unused")
   private final SaleService saleService;
 
   public SaleController(SaleService saleService) {
