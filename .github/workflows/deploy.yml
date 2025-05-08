@@ -37,6 +37,9 @@ jobs:
     if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Send notification to Discord (develop)
         env:
           DISCORD_WEBHOOK_DEVELOP: ${{ secrets.DISCORD_WEBHOOK_DEVELOP }}
