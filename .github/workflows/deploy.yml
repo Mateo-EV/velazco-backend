@@ -33,6 +33,28 @@ jobs:
       - name: Run Tests
         run: mvn test
 
+  notify-develop:
+    if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send notification to Discord (develop)
+        env:
+          DISCORD_WEBHOOK_DEVELOP: ${{ secrets.DISCORD_WEBHOOK_DEVELOP }}
+          BASE_URL: ${{ vars.DEV_BASE_URL }}
+        run: |
+          COMMIT_MESSAGE="$(git log -1 --pretty=%s)"
+          COMMIT_URL="https://github.com/${{ github.repository }}/commit/${{ github.sha }}"
+          curl -H "Content-Type: application/json" \
+            -X POST \
+            -d "{
+              \"content\": \"🛠️ **Push a \`develop\`** en \`${{ github.repository }}\` por **${{ github.actor }}**.\n\n\
+              🔗 **Swagger:** $BASE_URL/swagger-ui.html\n\
+              🌐 **Home:** $BASE_URL\n\
+              📝 **Commit:** ${COMMIT_MESSAGE}\n\
+              🔍 [Ver commit](${COMMIT_URL})\"
+            }" \
+            $DISCORD_WEBHOOK_DEVELOP
+
       # - name: Deploy to Railway using API Token
       #   run: |
       #     curl -X POST https://backboard.railway.app/v2/deployments \
