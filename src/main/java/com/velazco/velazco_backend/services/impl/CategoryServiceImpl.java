@@ -20,6 +20,12 @@ public class CategoryServiceImpl implements CategoryService {
   }
 
   @Override
+  public Category getCategoryById(Long id) {
+    return categoryRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+  }
+
+  @Override
   public List<Category> getAllCategories() {
     return categoryRepository.findAll();
   }
@@ -30,11 +36,18 @@ public class CategoryServiceImpl implements CategoryService {
   }
 
   @Override
+  public Category updateCategory(Long id, Category category) {
+    Category existing = getCategoryById(id);
+
+    category.setId(existing.getId());
+
+    return categoryRepository.save(category);
+  }
+
+  @Override
   public void deleteCategoryById(Long id) {
-    Category category = categoryRepository.findById(id)
-        .orElseThrow(() -> new EntityNotFoundException("Category not found"));
+    Category category = getCategoryById(id);
 
     categoryRepository.delete(category);
   }
-
 }
