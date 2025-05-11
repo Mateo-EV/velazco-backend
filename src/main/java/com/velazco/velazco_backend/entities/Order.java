@@ -41,7 +41,7 @@ public class Order {
   private User attendedBy;
 
   @OneToMany(mappedBy = "order")
-  private List<OrderDetail> orderDetails;
+  private List<OrderDetail> details;
 
   public static enum OrderStatus {
     PENDIENTE, PAGADO, CANCELADO, ENTREGADO

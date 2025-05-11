@@ -20,6 +20,8 @@ public class SecurityConfig {
                 .anyRequest()
                 .authenticated())
         .httpBasic(basic -> basic.authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)))
+        // .addFilterBefore(jwtAuthenticationFilter(),
+        // UsernamePasswordAuthenticationFilter.class)
         .formLogin(form -> form.disable())
         .logout(logout -> logout.disable());
 

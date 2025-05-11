@@ -1,6 +1,10 @@
 package com.velazco.velazco_backend.entities;
 
+import java.util.Collection;
 import java.util.List;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -18,7 +22,7 @@ import lombok.NoArgsConstructor;
 @Table(name = "usuarios")
 @Data
 @NoArgsConstructor
-public class User {
+public class User implements UserDetails {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,7 +35,7 @@ public class User {
   private String email;
 
   @Column(name = "password", nullable = false, length = 255)
-  private String hashedPassword;
+  private String password;
 
   @Column(name = "activo", nullable = false)
   private Boolean active = true;
@@ -54,4 +58,14 @@ public class User {
 
   @OneToMany(mappedBy = "assignedTo")
   private List<Production> responsibleProductions;
+
+  @Override
+  public String getUsername() {
+    return name;
+  }
+
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return List.of(() -> "ROLE_" + role.getName());
+  }
 }
