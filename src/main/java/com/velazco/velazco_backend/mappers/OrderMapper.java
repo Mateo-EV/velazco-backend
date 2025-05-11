@@ -1,7 +1,6 @@
 package com.velazco.velazco_backend.mappers;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -26,6 +25,7 @@ public interface OrderMapper {
     @Mapping(target = "date", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "attendedBy", ignore = true)
+    @Mapping(target = "sale", ignore = true)
     Order toEntity(OrderStartRequestDto orderDto);
 
     @Mapping(target = "id", ignore = true)
