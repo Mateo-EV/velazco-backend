@@ -2,7 +2,6 @@ package com.velazco.velazco_backend.controllers;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -27,10 +26,11 @@ import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.velazco.velazco_backend.dto.order.requests.OrderConfirmSaleRequestDto;
 import com.velazco.velazco_backend.dto.order.requests.OrderStartRequestDto;
+import com.velazco.velazco_backend.dto.order.responses.OrderConfirmSaleResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderListResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderStartResponseDto;
 import com.velazco.velazco_backend.entities.Order;
@@ -95,8 +95,8 @@ public class OrderControllerTest {
 
     List<OrderListResponseDto> dtoList = List.of(dto);
 
-    when(orderService.getAllOrders(any(Pageable.class))).thenReturn(orderPage);
-    when(orderMapper.toListResponse(orders)).thenReturn(dtoList);
+    Mockito.when(orderService.getAllOrders(any(Pageable.class))).thenReturn(orderPage);
+    Mockito.when(orderMapper.toListResponse(orders)).thenReturn(dtoList);
 
     // Act + Assert
     mockMvc.perform(get("/api/orders")
@@ -197,5 +197,53 @@ public class OrderControllerTest {
         .andExpect(jsonPath("$.details[1].product.id").value(3L))
         .andExpect(jsonPath("$.details[1].quantity").value(1))
         .andExpect(jsonPath("$.details[1].unitPrice").value(20.0));
+  }
+
+  @Test
+  @WithMockUser
+  void shouldConfirmSale() throws Exception {
+    Long orderId = 100L;
+    String paymentMethod = "Efectivo";
+
+    OrderConfirmSaleRequestDto requestDto = OrderConfirmSaleRequestDto.builder()
+        .paymentMethod(paymentMethod)
+        .build();
+
+    User mockUser = new User();
+    mockUser.setId(10L);
+    mockUser.setName("Mateo Velazco");
+
+    OrderConfirmSaleResponseDto responseDto = OrderConfirmSaleResponseDto.builder()
+        .id(orderId)
+        .date(LocalDateTime.now())
+        .clientName("John Doe")
+        .status(Order.OrderStatus.PAGADO.name())
+        .sale(OrderConfirmSaleResponseDto.SaleOrderConfirmSaleResponseDto.builder()
+            .id(200L)
+            .saleDate(LocalDateTime.now())
+            .paymentMethod(paymentMethod)
+            .totalAmount(BigDecimal.valueOf(100.0))
+            .cashier(OrderConfirmSaleResponseDto.SaleOrderConfirmSaleResponseDto.CashierSaleOrderConfirmSaleResponseDto
+                .builder()
+                .id(10L)
+                .name("Mateo Velazco")
+                .build())
+            .build())
+        .build();
+
+    Mockito.when(orderService.confirmSale(eq(orderId), eq(mockUser), eq(paymentMethod)))
+        .thenReturn(responseDto);
+
+    mockMvc.perform(post("/api/orders/{id}/confirm-sale", orderId)
+        .with(csrf())
+        .with(user(mockUser))
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(requestDto)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(orderId))
+        .andExpect(jsonPath("$.clientName").value("John Doe"))
+        .andExpect(jsonPath("$.status").value("PAGADO"))
+        .andExpect(jsonPath("$.sale.id").value(200L))
+        .andExpect(jsonPath("$.sale.totalAmount").value(100.0));
   }
 }

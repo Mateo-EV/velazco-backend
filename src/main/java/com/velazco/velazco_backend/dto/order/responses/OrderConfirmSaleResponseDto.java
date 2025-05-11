@@ -40,4 +40,5 @@ public class OrderConfirmSaleResponseDto {
   private LocalDateTime date;
   private String clientName;
   private String status;
+  private SaleOrderConfirmSaleResponseDto sale;
 }
