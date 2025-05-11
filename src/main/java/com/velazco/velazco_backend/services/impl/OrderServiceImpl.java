@@ -1,6 +1,8 @@
 package com.velazco.velazco_backend.services.impl;
 
+import com.velazco.velazco_backend.dto.PaginatedResponseDto;
 import com.velazco.velazco_backend.dto.order.requests.OrderStartRequestDto;
+import com.velazco.velazco_backend.dto.order.responses.OrderListResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderStartResponseDto;
 import com.velazco.velazco_backend.entities.Order;
 import com.velazco.velazco_backend.entities.OrderDetail;
@@ -29,8 +31,15 @@ public class OrderServiceImpl implements OrderService {
   private final ProductRepository productRepository;
 
   @Override
-  public Page<Order> getAllOrders(Pageable pageable) {
-    return orderRepository.findAll(pageable);
+  public PaginatedResponseDto<OrderListResponseDto> getOrdersByStatus(Order.OrderStatus status, Pageable pageable) {
+    Page<Order> orderPage = orderRepository.findByStatus(status, pageable);
+
+    return PaginatedResponseDto.<OrderListResponseDto>builder()
+        .content(orderMapper.toListResponse(orderPage.getContent()))
+        .currentPage(orderPage.getNumber())
+        .totalItems(orderPage.getTotalElements())
+        .totalPages(orderPage.getTotalPages())
+        .build();
   }
 
   @Override

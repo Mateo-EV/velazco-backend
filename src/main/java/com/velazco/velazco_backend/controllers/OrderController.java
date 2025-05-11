@@ -19,7 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.data.domain.Page;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -29,29 +29,27 @@ import org.springframework.web.bind.annotation.RequestBody;
 public class OrderController {
 
   private final OrderService orderService;
-  private final OrderMapper orderMapper;
 
   public OrderController(OrderService orderService, OrderMapper orderMapper) {
     this.orderService = orderService;
-    this.orderMapper = orderMapper;
   }
 
-  @GetMapping
-  public ResponseEntity<PaginatedResponseDto<OrderListResponseDto>> getAllOrders(
+  @GetMapping("/status/{status}")
+  public ResponseEntity<PaginatedResponseDto<OrderListResponseDto>> getOrdersByStatus(
+      @PathVariable String status,
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size) {
 
     Pageable pageable = PageRequest.of(page, size);
-    Page<Order> orderPage = orderService.getAllOrders(pageable);
 
-    PaginatedResponseDto<OrderListResponseDto> response = PaginatedResponseDto.<OrderListResponseDto>builder()
-        .content(orderMapper.toListResponse(orderPage.getContent()))
-        .currentPage(orderPage.getNumber())
-        .totalItems(orderPage.getTotalElements())
-        .totalPages(orderPage.getTotalPages())
-        .build();
+    Order.OrderStatus orderStatus;
+    try {
+      orderStatus = Order.OrderStatus.valueOf(status.toUpperCase());
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.badRequest().build(); // o puedes retornar un mensaje personalizado
+    }
 
-    return ResponseEntity.ok(response);
+    return ResponseEntity.ok(orderService.getOrdersByStatus(orderStatus, pageable));
   }
 
   @PostMapping("/start")
