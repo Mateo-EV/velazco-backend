@@ -45,6 +45,18 @@ import com.velazco.velazco_backend.services.OrderService;
 
 @WebMvcTest(OrderController.class)
 public class OrderControllerTest {
+    @Autowired
+    private MockMvc mockMvc;
+    
+    @MockitoBean
+    private OrderService orderService;
+    
+    @MockitoBean
+    private OrderMapper orderMapper;
+    
+    @Autowired
+    private ObjectMapper objectMapper;
+    
     @Test
     @WithMockUser
     void shouldGetOrdersByStatusSuccessfully() throws Exception {
