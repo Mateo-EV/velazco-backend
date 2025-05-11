@@ -47,6 +47,12 @@ public class ProductController {
     return ResponseEntity.ok(productMapper.toListResponse(products));
   }
 
+  @GetMapping("/available")
+  public ResponseEntity<List<ProductListResponseDto>> getAllAvailableProducts() {
+    List<ProductListResponseDto> products = productService.getAllAvailableProducts();
+    return ResponseEntity.ok(products);
+  }
+
   @PostMapping
   public ResponseEntity<ProductCreateResponseDto> createProduct(
       @Valid @RequestBody ProductCreateRequestDto requestDTO) {
