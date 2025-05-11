@@ -4,29 +4,33 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.velazco.velazco_backend.dto.product.responses.ProductListResponseDto;
 import com.velazco.velazco_backend.entities.Category;
 import com.velazco.velazco_backend.entities.Product;
+import com.velazco.velazco_backend.mappers.ProductMapper;
 import com.velazco.velazco_backend.repositories.CategoryRepository;
 import com.velazco.velazco_backend.repositories.ProductRepository;
 import com.velazco.velazco_backend.services.ProductService;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class ProductServiceImpl implements ProductService {
 
   private final ProductRepository productRepository;
   private final CategoryRepository categoryRepository;
-
-  public ProductServiceImpl(ProductRepository productRepository,
-      CategoryRepository categoryRepository) {
-    this.categoryRepository = categoryRepository;
-    this.productRepository = productRepository;
-  }
+  private final ProductMapper productMapper;
 
   @Override
   public List<Product> getAllProducts() {
     return productRepository.findAll();
+  }
+
+  @Override
+  public List<ProductListResponseDto> getAllAvailableProducts() {
+    return productMapper.toListResponse(productRepository.findAvailableProducts());
   }
 
   @Override

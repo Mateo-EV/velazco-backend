@@ -100,6 +100,57 @@ public class ProductControllerTest {
 
         @Test
         @WithMockUser
+        void shouldGetAllAvailableProducts() throws Exception {
+
+                Product productEntity = new Product();
+                productEntity.setId(1L);
+                productEntity.setName("Chocolate Cake");
+                productEntity.setPrice(BigDecimal.valueOf(20.00));
+                productEntity.setStock(10);
+                productEntity.setActive(true);
+
+                Category category = new Category();
+                category.setId(2L);
+                category.setName("Pasteles");
+                productEntity.setCategory(category);
+
+                List<Product> productEntities = List.of(productEntity);
+
+                ProductListResponseDto.CategoryProductListResponseDto categoryDTO = ProductListResponseDto.CategoryProductListResponseDto
+                                .builder()
+                                .id(2L)
+                                .name("Pasteles")
+                                .build();
+
+                ProductListResponseDto productDTO = ProductListResponseDto.builder()
+                                .id(1)
+                                .name("Chocolate Cake")
+                                .price(BigDecimal.valueOf(20.00))
+                                .stock(10)
+                                .active(true)
+                                .category(categoryDTO)
+                                .build();
+
+                List<ProductListResponseDto> productDTOs = List.of(productDTO);
+
+                Mockito.when(productService.getAllAvailableProducts()).thenReturn(productDTOs);
+                Mockito.when(productMapper.toListResponse(productEntities)).thenReturn(productDTOs);
+
+                mockMvc.perform(get("/api/products/available")
+                                .contentType(MediaType.APPLICATION_JSON))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.length()").value(1))
+                                .andExpect(jsonPath("$[0].id").value(1))
+                                .andExpect(jsonPath("$[0].name").value("Chocolate Cake"))
+                                .andExpect(jsonPath("$[0].price").value(20.00))
+                                .andExpect(jsonPath("$[0].stock").value(10))
+                                .andExpect(jsonPath("$[0].active").value(true))
+                                .andExpect(jsonPath("$[0].category.id").value(2))
+                                .andExpect(jsonPath("$[0].category.name").value("Pasteles"));
+        }
+
+        @Test
+        @WithMockUser
         void shouldCreateProduct() throws Exception {
                 ProductCreateRequestDto requestDTO = ProductCreateRequestDto.builder()
                                 .name("Chocolate Cake")
