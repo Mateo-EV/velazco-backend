@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -32,6 +33,7 @@ import com.velazco.velazco_backend.mappers.CategoryMapper;
 import com.velazco.velazco_backend.services.CategoryService;
 
 @WebMvcTest(CategoryController.class)
+@ActiveProfiles("test")
 public class CategoryControllerTest {
 
     @Autowired
@@ -72,7 +74,11 @@ public class CategoryControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(1))
                 .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].name").value("Pasteles"));
+                .andExpect(jsonPath("$[0].name").value("Pasteles"))
+                .andDo(result -> {
+                    System.out.println("🔥 HTTP STATUS: " + result.getResponse().getStatus());
+                    System.out.println("🔥 JSON: " + result.getResponse().getContentAsString());
+                });
     }
 
     @Test

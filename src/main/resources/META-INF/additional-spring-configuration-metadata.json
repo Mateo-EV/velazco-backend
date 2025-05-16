@@ -4,6 +4,16 @@
       "name": "base.url",
       "type": "java.lang.String",
       "description": "Base url for project"
+    },
+    {
+      "name": "jwt.secret",
+      "type": "java.lang.String",
+      "description": "JWT secret key"
+    },
+    {
+      "name": "app.security.jwt.enabled",
+      "type": "java.lang.String",
+      "description": "Enable JWT"
     }
   ]
 }
