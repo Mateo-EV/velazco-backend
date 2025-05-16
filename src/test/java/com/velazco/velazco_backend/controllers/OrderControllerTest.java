@@ -22,6 +22,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -41,6 +42,7 @@ import com.velazco.velazco_backend.mappers.OrderMapper;
 import com.velazco.velazco_backend.services.OrderService;
 
 @WebMvcTest(OrderController.class)
+@ActiveProfiles("test")
 public class OrderControllerTest {
 
     @Autowired

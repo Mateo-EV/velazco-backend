@@ -20,6 +20,7 @@ import com.velazco.velazco_backend.entities.User;
 import com.velazco.velazco_backend.mappers.OrderMapper;
 import com.velazco.velazco_backend.repositories.OrderRepository;
 import com.velazco.velazco_backend.repositories.ProductRepository;
+import com.velazco.velazco_backend.repositories.SaleRepository;
 import com.velazco.velazco_backend.services.OrderService;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -30,8 +31,10 @@ import lombok.RequiredArgsConstructor;
 public class OrderServiceImpl implements OrderService {
 
   private final OrderRepository orderRepository;
-  private final OrderMapper orderMapper;
+  private final SaleRepository saleRepository;
   private final ProductRepository productRepository;
+
+  private final OrderMapper orderMapper;
 
   @Override
   public PaginatedResponseDto<OrderListResponseDto> getOrdersByStatus(Order.OrderStatus status, Pageable pageable) {
@@ -76,17 +79,19 @@ public class OrderServiceImpl implements OrderService {
     Order order = getOrderById(orderId);
     order.setStatus(Order.OrderStatus.PAGADO);
 
-    Sale sale = Sale.builder()
-        .saleDate(LocalDateTime.now())
-        .paymentMethod(paymentMethod)
-        .totalAmount(order.getDetails().stream()
-            .map(detail -> detail.getUnitPrice().multiply(new BigDecimal(detail.getQuantity())))
-            .reduce(BigDecimal.ZERO, BigDecimal::add))
-        .cashier(cashier)
-        .build();
+    Sale sale = saleRepository.save(
+        Sale.builder()
+            .saleDate(LocalDateTime.now())
+            .paymentMethod(paymentMethod)
+            .totalAmount(order.getDetails().stream()
+                .map(detail -> detail.getUnitPrice().multiply(new BigDecimal(detail.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add))
+            .cashier(cashier)
+            .order(order)
+            .build());
 
     order.setSale(sale);
 
-    return orderMapper.toConfirmSaleResponse(orderRepository.save(order));
+    return orderMapper.toConfirmSaleResponse(order);
   }
 }

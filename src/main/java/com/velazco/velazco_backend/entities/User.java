@@ -3,6 +3,7 @@ package com.velazco.velazco_backend.entities;
 import java.util.Collection;
 import java.util.List;
 
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -38,7 +39,8 @@ public class User implements UserDetails {
   private String password;
 
   @Column(name = "activo", nullable = false)
-  private Boolean active = true;
+  @ColumnDefault("1")
+  private Boolean active;
 
   @ManyToOne
   @JoinColumn(name = "rol_id", nullable = false)
@@ -61,7 +63,7 @@ public class User implements UserDetails {
 
   @Override
   public String getUsername() {
-    return name;
+    return email;
   }
 
   @Override

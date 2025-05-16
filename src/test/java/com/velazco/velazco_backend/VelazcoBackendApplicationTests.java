@@ -7,7 +7,8 @@ import org.springframework.test.context.TestPropertySource;
 
 @SpringBootTest
 @TestPropertySource(properties = {
-		"base.url=http://localhost:8080"
+		"base.url=http://localhost:8080",
+		"app.security.jwt.enabled=true",
 })
 @ActiveProfiles("test")
 class VelazcoBackendApplicationTests {
