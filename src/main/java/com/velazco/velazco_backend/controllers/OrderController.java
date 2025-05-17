@@ -8,7 +8,6 @@ import com.velazco.velazco_backend.dto.order.responses.OrderListResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderStartResponseDto;
 import com.velazco.velazco_backend.entities.Order;
 import com.velazco.velazco_backend.entities.User;
-import com.velazco.velazco_backend.mappers.OrderMapper;
 import com.velazco.velazco_backend.services.OrderService;
 
 import jakarta.validation.Valid;
@@ -33,7 +32,7 @@ public class OrderController {
 
   private final OrderService orderService;
 
-  public OrderController(OrderService orderService, OrderMapper orderMapper) {
+  public OrderController(OrderService orderService) {
     this.orderService = orderService;
   }
 
@@ -49,7 +48,7 @@ public class OrderController {
     try {
       orderStatus = Order.OrderStatus.valueOf(status.toUpperCase());
     } catch (IllegalArgumentException e) {
-      return ResponseEntity.badRequest().build(); // o puedes retornar un mensaje personalizado
+      return ResponseEntity.badRequest().build(); 
     }
 
     return ResponseEntity.ok(orderService.getOrdersByStatus(orderStatus, pageable));
