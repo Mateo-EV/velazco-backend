@@ -3,6 +3,7 @@ package com.velazco.velazco_backend.entities;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -44,7 +45,7 @@ public class Order {
   @OneToOne(mappedBy = "order")
   private Sale sale;
 
-  @OneToMany(mappedBy = "order")
+  @OneToMany(mappedBy = "order", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, orphanRemoval = true)
   private List<OrderDetail> details;
 
   public static enum OrderStatus {

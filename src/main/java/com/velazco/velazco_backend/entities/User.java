@@ -39,7 +39,7 @@ public class User implements UserDetails {
   private String password;
 
   @Column(name = "activo", nullable = false)
-  @ColumnDefault("1")
+  @ColumnDefault("true")
   private Boolean active;
 
   @ManyToOne

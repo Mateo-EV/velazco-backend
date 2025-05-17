@@ -14,6 +14,7 @@ import com.velazco.velazco_backend.dto.order.responses.OrderConfirmSaleResponseD
 import com.velazco.velazco_backend.dto.order.responses.OrderStartResponseDto;
 import com.velazco.velazco_backend.entities.Order;
 import com.velazco.velazco_backend.entities.OrderDetail;
+import com.velazco.velazco_backend.entities.OrderDetailId;
 import com.velazco.velazco_backend.entities.Product;
 import com.velazco.velazco_backend.entities.Sale;
 import com.velazco.velazco_backend.entities.User;
@@ -24,6 +25,7 @@ import com.velazco.velazco_backend.repositories.SaleRepository;
 import com.velazco.velazco_backend.services.OrderService;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -55,6 +57,7 @@ public class OrderServiceImpl implements OrderService {
   }
 
   @Override
+  @Transactional
   public OrderStartResponseDto startOrder(User user, OrderStartRequestDto orderRequest) {
     Order order = orderMapper.toEntity(orderRequest);
 
@@ -69,6 +72,7 @@ public class OrderServiceImpl implements OrderService {
       detail.setOrder(order);
       detail.setProduct(product);
       detail.setUnitPrice(product.getPrice());
+      detail.setId(OrderDetailId.builder().productId(product.getId()).build());
     }
 
     return orderMapper.toStartResponse(orderRepository.save(order));
