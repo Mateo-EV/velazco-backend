@@ -29,36 +29,29 @@ import org.springframework.web.bind.annotation.RestController;
 public class CategoryController {
 
   private final CategoryService categoryService;
-  private final CategoryMapper categoryMapper;
 
-  public CategoryController(CategoryService categoryService, CategoryMapper categoryMapper) {
-    this.categoryMapper = categoryMapper;
+  public CategoryController(CategoryService categoryService) {
     this.categoryService = categoryService;
   }
 
   @GetMapping
   public ResponseEntity<List<CategoryListResponseDto>> getAllCategories() {
-    List<Category> categories = categoryService.getAllCategories();
-    return ResponseEntity.ok(categoryMapper.toListResponse(categories));
+    return ResponseEntity.ok(categoryService.getAllCategories());
   }
 
   @PostMapping
   public ResponseEntity<CategoryCreateResponseDto> createCategory(
-      @Valid @RequestBody CategoryCreateRequestDto requestDTO) {
-    Category category = categoryMapper.toEntity(requestDTO);
-
-    Category savedCategory = categoryService.createCategory(category);
-
-    return ResponseEntity.status(HttpStatus.CREATED).body(categoryMapper.toCreateResponse(savedCategory));
+      @Valid @RequestBody CategoryCreateRequestDto createRequest) {
+    CategoryCreateResponseDto responseDTO = categoryService.createCategory(createRequest);
+    return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<CategoryUpdateResponseDto> updateCategory(@PathVariable Long id,
-      @Valid @RequestBody CategoryUpdateRequestDto requestDTO) {
-    Category entity = categoryMapper.toEntity(requestDTO);
-
-    Category updatedCategory = categoryService.updateCategory(id, entity);
-    return ResponseEntity.ok(categoryMapper.toUpdateResponse(updatedCategory));
+  public ResponseEntity<CategoryUpdateResponseDto> updateCategory(
+      @PathVariable Long id,
+      @Valid @RequestBody CategoryUpdateRequestDto updateRequest) {
+    CategoryUpdateResponseDto responseDTO = categoryService.updateCategory(id, updateRequest);
+    return ResponseEntity.ok(responseDTO);
   }
 
   @DeleteMapping("/{id}")

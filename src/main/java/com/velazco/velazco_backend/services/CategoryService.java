@@ -2,17 +2,22 @@ package com.velazco.velazco_backend.services;
 
 import java.util.List;
 
+import com.velazco.velazco_backend.dto.category.requests.CategoryCreateRequestDto;
+import com.velazco.velazco_backend.dto.category.requests.CategoryUpdateRequestDto;
+import com.velazco.velazco_backend.dto.category.responses.CategoryCreateResponseDto;
+import com.velazco.velazco_backend.dto.category.responses.CategoryListResponseDto;
+import com.velazco.velazco_backend.dto.category.responses.CategoryUpdateResponseDto;
 import com.velazco.velazco_backend.entities.Category;
 
 public interface CategoryService {
 
-    List<Category> getAllCategories();
+    List<CategoryListResponseDto> getAllCategories();
 
     Category getCategoryById(Long id);
 
-    Category createCategory(Category category);
+    CategoryCreateResponseDto createCategory(CategoryCreateRequestDto dto);
 
-    Category updateCategory(Long id, Category category);
+    CategoryUpdateResponseDto updateCategory(Long id, CategoryUpdateRequestDto dto);
 
     void deleteCategoryById(Long id);
 

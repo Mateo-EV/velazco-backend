@@ -21,8 +21,6 @@ import com.velazco.velazco_backend.dto.product.responses.ProductCreateResponseDt
 import com.velazco.velazco_backend.dto.product.responses.ProductListResponseDto;
 import com.velazco.velazco_backend.dto.product.responses.ProductUpdateActiveResponseDto;
 import com.velazco.velazco_backend.dto.product.responses.ProductUpdateResponseDto;
-import com.velazco.velazco_backend.entities.Product;
-import com.velazco.velazco_backend.mappers.ProductMapper;
 import com.velazco.velazco_backend.services.ProductService;
 
 import jakarta.validation.Valid;
@@ -32,19 +30,15 @@ import jakarta.validation.Valid;
 public class ProductController {
 
   private final ProductService productService;
-  private final ProductMapper productMapper;
 
   public ProductController(
-      ProductService productService,
-      ProductMapper productMapper) {
+      ProductService productService) {
     this.productService = productService;
-    this.productMapper = productMapper;
   }
 
   @GetMapping
   public ResponseEntity<List<ProductListResponseDto>> getAllProducts() {
-    List<Product> products = productService.getAllProducts();
-    return ResponseEntity.ok(productMapper.toListResponse(products));
+    return ResponseEntity.ok(productService.getAllProducts());
   }
 
   @GetMapping("/available")
@@ -56,29 +50,27 @@ public class ProductController {
   @PostMapping
   public ResponseEntity<ProductCreateResponseDto> createProduct(
       @Valid @RequestBody ProductCreateRequestDto requestDTO) {
-    Product product = productMapper.toEntity(requestDTO);
 
-    Product savedProduct = productService.createProduct(product);
-
-    return ResponseEntity.status(HttpStatus.CREATED).body(productMapper.toCreateResponse(savedProduct));
+    ProductCreateResponseDto responseDTO = productService.createProduct(requestDTO);
+    return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<ProductUpdateResponseDto> updateProduct(@PathVariable Long id,
+  public ResponseEntity<ProductUpdateResponseDto> updateProduct(
+      @PathVariable Long id,
       @Valid @RequestBody ProductUpdateRequestDto requestDTO) {
-    Product entity = productMapper.toEntity(requestDTO);
 
-    Product updatedProduct = productService.updateProduct(id, entity);
-    return ResponseEntity.ok(productMapper.toUpdateResponse(updatedProduct));
+    ProductUpdateResponseDto responseDTO = productService.updateProduct(id, requestDTO);
+    return ResponseEntity.ok(responseDTO);
   }
 
   @PatchMapping("/{id}/active")
   public ResponseEntity<ProductUpdateActiveResponseDto> updateProductActive(
       @PathVariable Long id,
       @Valid @RequestBody ProductUpdateActiveRequestDto statusDTO) {
-    Product updatedProduct = productService.updateProductActive(id, statusDTO.getActive());
 
-    return ResponseEntity.ok(productMapper.toUpdateActiveResponse(updatedProduct));
+    ProductUpdateActiveResponseDto responseDTO = productService.updateProductActive(id, statusDTO.getActive());
+    return ResponseEntity.ok(responseDTO);
   }
 
   @DeleteMapping("/{id}")

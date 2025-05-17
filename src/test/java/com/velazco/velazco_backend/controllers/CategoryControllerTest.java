@@ -36,123 +36,92 @@ import com.velazco.velazco_backend.services.CategoryService;
 @ActiveProfiles("test")
 public class CategoryControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+  @Autowired
+  private MockMvc mockMvc;
 
-    @MockitoBean
-    private CategoryService categoryService;
+  @MockitoBean
+  private CategoryService categoryService;
 
-    @MockitoBean
-    private CategoryMapper categoryMapper;
+  @MockitoBean
+  private CategoryMapper categoryMapper;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+  @Autowired
+  private ObjectMapper objectMapper;
 
-    @Test
-    @WithMockUser
-    void shouldGetAllCategoriesSuccessfully() throws Exception {
+  @Test
+  @WithMockUser
+  void shouldGetAllCategoriesSuccessfully() throws Exception {
+    CategoryListResponseDto categoryDTO = CategoryListResponseDto.builder()
+        .id(1L)
+        .name("Pasteles")
+        .build();
 
-        Category categoryEntity = new Category();
-        categoryEntity.setId(1L);
-        categoryEntity.setName("Pasteles");
+    List<CategoryListResponseDto> categoriesDTOs = List.of(categoryDTO);
 
-        List<Category> categoryEntities = List.of(categoryEntity);
+    Mockito.when(categoryService.getAllCategories()).thenReturn(categoriesDTOs);
 
-        CategoryListResponseDto categoryDTO = CategoryListResponseDto
-                .builder()
-                .id(1L)
-                .name("Pasteles")
-                .build();
+    mockMvc.perform(get("/api/categories")
+        .contentType(MediaType.APPLICATION_JSON))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.length()").value(1))
+        .andExpect(jsonPath("$[0].id").value(1))
+        .andExpect(jsonPath("$[0].name").value("Pasteles"));
+  }
 
-        List<CategoryListResponseDto> categoriesDTOs = List.of(categoryDTO);
+  @Test
+  @WithMockUser
+  void shouldCreateCategory() throws Exception {
+    CategoryCreateRequestDto requestDTO = CategoryCreateRequestDto.builder()
+        .name("Cakes")
+        .build();
 
-        Mockito.when(categoryService.getAllCategories()).thenReturn(categoryEntities);
-        Mockito.when(categoryMapper.toListResponse(categoryEntities)).thenReturn(categoriesDTOs);
+    CategoryCreateResponseDto responseDTO = CategoryCreateResponseDto.builder()
+        .id(1L)
+        .name("Cakes")
+        .build();
 
-        mockMvc.perform(get("/api/categories")
-                .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(1))
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].name").value("Pasteles"))
-                .andDo(result -> {
-                    System.out.println("🔥 HTTP STATUS: " + result.getResponse().getStatus());
-                    System.out.println("🔥 JSON: " + result.getResponse().getContentAsString());
-                });
-    }
+    Mockito.when(categoryService.createCategory(any(CategoryCreateRequestDto.class)))
+        .thenReturn(responseDTO);
 
-    @Test
-    @WithMockUser
-    void shouldCreateCategory() throws Exception {
-        CategoryCreateRequestDto requestDTO = CategoryCreateRequestDto.builder()
-                .name("Cakes")
-                .build();
+    mockMvc.perform(post("/api/categories")
+        .with(csrf())
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(requestDTO)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.id").value(1))
+        .andExpect(jsonPath("$.name").value("Cakes"));
+  }
 
-        Category mappedEntity = new Category();
-        mappedEntity.setId(null);
-        mappedEntity.setName("Cakes");
+  @Test
+  @WithMockUser
+  void shouldUpdateCategory() throws Exception {
+    CategoryUpdateRequestDto requestDTO = CategoryUpdateRequestDto.builder()
+        .name("Cakes")
+        .build();
 
-        Category savedEntity = new Category();
-        savedEntity.setId(1L);
-        savedEntity.setName("Cakes");
+    CategoryUpdateResponseDto responseDTO = CategoryUpdateResponseDto.builder()
+        .id(1L)
+        .name("Cakes")
+        .build();
 
-        CategoryCreateResponseDto responseDTO = CategoryCreateResponseDto.builder()
-                .id(1L)
-                .name("Cakes")
-                .build();
+    Mockito.when(categoryService.updateCategory(eq(1L), any(CategoryUpdateRequestDto.class)))
+        .thenReturn(responseDTO);
 
-        Mockito.when(categoryMapper.toEntity(any(CategoryCreateRequestDto.class))).thenReturn(mappedEntity);
-        Mockito.when(categoryService.createCategory(any(Category.class))).thenReturn(savedEntity);
-        Mockito.when(categoryMapper.toCreateResponse(any(Category.class))).thenReturn(responseDTO);
+    mockMvc.perform(put("/api/categories/1").with(csrf())
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(requestDTO)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(1))
+        .andExpect(jsonPath("$.name").value("Cakes"));
+  }
 
-        mockMvc.perform(post("/api/categories")
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(requestDTO)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.name").value("Cakes"));
-    }
+  @Test
+  @WithMockUser
+  void shouldDeleteCategory() throws Exception {
+    Mockito.doNothing().when(categoryService).deleteCategoryById(1L);
 
-    @Test
-    @WithMockUser
-    void shouldUpdateCategory() throws Exception {
-        CategoryUpdateRequestDto requestDTO = CategoryUpdateRequestDto.builder()
-                .name("Cakes")
-                .build();
-
-        Category mappedEntity = new Category();
-        mappedEntity.setId(1L);
-        mappedEntity.setName("Cakes");
-
-        Category updatedEntity = new Category();
-        updatedEntity.setId(1L);
-        updatedEntity.setName("Cakes");
-
-        CategoryUpdateResponseDto responseDTO = CategoryUpdateResponseDto.builder()
-                .id(1L)
-                .name("Cakes")
-                .build();
-
-        Mockito.when(categoryMapper.toEntity(any(CategoryUpdateRequestDto.class))).thenReturn(mappedEntity);
-        Mockito.when(categoryService.updateCategory(eq(1L), any(Category.class))).thenReturn(updatedEntity);
-        Mockito.when(categoryMapper.toUpdateResponse(updatedEntity)).thenReturn(responseDTO);
-
-        mockMvc.perform(put("/api/categories/1").with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(requestDTO)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1))
-                .andExpect(jsonPath("$.name").value("Cakes"));
-    }
-
-    @Test
-    @WithMockUser
-    void shouldDeleteCategory() throws Exception {
-        Mockito.doNothing().when(categoryService).deleteCategoryById(1L);
-
-        mockMvc.perform(delete("/api/categories/1").with(csrf()))
-                .andExpect(status().isNoContent());
-    }
+    mockMvc.perform(delete("/api/categories/1").with(csrf()))
+        .andExpect(status().isNoContent());
+  }
 
 }
