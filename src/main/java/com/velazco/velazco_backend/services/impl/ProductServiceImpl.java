@@ -54,10 +54,10 @@ public class ProductServiceImpl implements ProductService {
 
       try {
         String filename = UUID.randomUUID() + "_" + dto.getImage().getOriginalFilename();
-        Path path = Paths.get("uploads").resolve(filename);
+        Path path = Paths.get("uploads").resolve(filename); // ⬅ Carpeta externa
         Files.createDirectories(path.getParent());
         Files.copy(dto.getImage().getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-        imagePath = "/images/" + filename;
+        imagePath = "/storage/" + filename; // ⬅ URL para frontend
       } catch (IOException e) {
         throw new RuntimeException("Error al guardar la imagen", e);
       }
@@ -91,10 +91,10 @@ public class ProductServiceImpl implements ProductService {
 
       try {
         String filename = UUID.randomUUID() + "_" + dto.getImage().getOriginalFilename();
-        Path path = Paths.get("uploads").resolve(filename);
+        Path path = Paths.get("uploads").resolve(filename); // ⬅ Carpeta externa
         Files.createDirectories(path.getParent());
         Files.copy(dto.getImage().getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
-        imagePath = "/images/" + filename;
+        imagePath = "/storage/" + filename; // ⬅ URL para frontend
       } catch (IOException e) {
         throw new RuntimeException("Error al guardar la imagen", e);
       }
