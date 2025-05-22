@@ -1,3 +1,4 @@
+// ProductMapper.java
 package com.velazco.velazco_backend.mappers;
 
 import java.util.List;
@@ -16,6 +17,8 @@ import com.velazco.velazco_backend.entities.Product;
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
 
+  @Mapping(target = "category.id", source = "category.id")
+  @Mapping(target = "category.name", source = "category.name")
   ProductCreateResponseDto toCreateResponse(Product product);
 
   List<ProductListResponseDto> toListResponse(List<Product> product);

@@ -53,4 +53,10 @@ public class GlobalExceptionHandler {
         request.getDescription(false).replace("uri=", ""));
     return new ResponseEntity<>(error, status);
   }
+
+  @ExceptionHandler(FileTooLargeException.class)
+  public ResponseEntity<ErrorResponse> handleFileTooLarge(FileTooLargeException ex, WebRequest request) {
+    return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, request);
+  }
+
 }

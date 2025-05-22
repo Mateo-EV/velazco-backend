@@ -2,6 +2,8 @@ package com.velazco.velazco_backend.dto.product.requests;
 
 import java.math.BigDecimal;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -23,11 +25,11 @@ public class ProductUpdateRequestDto {
     @NotNull
     private Integer stock;
 
-    // private String image;
-
     @NotNull
     private Boolean active;
 
     @NotNull
     private Long categoryId;
+
+    private MultipartFile image; 
 }

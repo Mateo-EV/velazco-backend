@@ -3,9 +3,11 @@ package com.velazco.velazco_backend.controllers;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,22 +55,20 @@ public class ProductController {
     return ResponseEntity.ok(products);
   }
 
-  @PostMapping
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<ProductCreateResponseDto> createProduct(
-      @Valid @RequestBody ProductCreateRequestDto requestDTO) {
-    Product product = productMapper.toEntity(requestDTO);
-
-    Product savedProduct = productService.createProduct(product);
-
-    return ResponseEntity.status(HttpStatus.CREATED).body(productMapper.toCreateResponse(savedProduct));
+      @Valid @ModelAttribute ProductCreateRequestDto requestDTO) {
+    return ResponseEntity
+        .status(HttpStatus.CREATED)
+        .body(productService.createProductWithImage(requestDTO));
   }
 
-  @PutMapping("/{id}")
-  public ResponseEntity<ProductUpdateResponseDto> updateProduct(@PathVariable Long id,
-      @Valid @RequestBody ProductUpdateRequestDto requestDTO) {
-    Product entity = productMapper.toEntity(requestDTO);
+  @PutMapping(path = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  public ResponseEntity<ProductUpdateResponseDto> updateProduct(
+      @PathVariable Long id,
+      @Valid @ModelAttribute ProductUpdateRequestDto requestDTO) {
 
-    Product updatedProduct = productService.updateProduct(id, entity);
+    Product updatedProduct = productService.updateProduct(id, requestDTO);
     return ResponseEntity.ok(productMapper.toUpdateResponse(updatedProduct));
   }
 

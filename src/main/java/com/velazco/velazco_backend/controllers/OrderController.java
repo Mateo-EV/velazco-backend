@@ -72,4 +72,5 @@ public class OrderController {
     OrderConfirmSaleResponseDto responseDto = orderService.confirmSale(id, cashier, requestDto.getPaymentMethod());
     return ResponseEntity.ok(responseDto);
   }
+  
 }
