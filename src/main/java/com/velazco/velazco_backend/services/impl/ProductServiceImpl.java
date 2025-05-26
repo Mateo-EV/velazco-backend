@@ -1,6 +1,12 @@
 package com.velazco.velazco_backend.services.impl;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
@@ -12,9 +18,11 @@ import com.velazco.velazco_backend.dto.product.responses.ProductUpdateActiveResp
 import com.velazco.velazco_backend.dto.product.responses.ProductUpdateResponseDto;
 import com.velazco.velazco_backend.entities.Category;
 import com.velazco.velazco_backend.entities.Product;
+import com.velazco.velazco_backend.exception.FileTooLargeException;
 import com.velazco.velazco_backend.mappers.ProductMapper;
 import com.velazco.velazco_backend.repositories.CategoryRepository;
 import com.velazco.velazco_backend.repositories.ProductRepository;
+import com.velazco.velazco_backend.services.ImageStorageService;
 import com.velazco.velazco_backend.services.ProductService;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -27,6 +35,7 @@ public class ProductServiceImpl implements ProductService {
   private final ProductRepository productRepository;
   private final CategoryRepository categoryRepository;
   private final ProductMapper productMapper;
+  private final ImageStorageService imageStorageService;
 
   @Override
   public List<ProductListResponseDto> getAllProducts() {
@@ -41,34 +50,60 @@ public class ProductServiceImpl implements ProductService {
 
   @Override
   public ProductCreateResponseDto createProduct(ProductCreateRequestDto dto) {
-    Product product = productMapper.toEntity(dto);
+    String imagePath = null;
 
-    Category category = categoryRepository.findById(product.getCategory().getId())
+    if (dto.getImage() != null && !dto.getImage().isEmpty()) {
+      if (dto.getImage().getSize() > 4 * 1024 * 1024) {
+        throw new FileTooLargeException("La imagen no debe superar los 4 MB.");
+      }
+
+      try {
+        String filename = UUID.randomUUID() + "_" + dto.getImage().getOriginalFilename();
+        Path path = Paths.get("uploads").resolve(filename); // ⬅ Carpeta externa
+        Files.createDirectories(path.getParent());
+        Files.copy(dto.getImage().getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+        imagePath = "/storage/" + filename;
+      } catch (IOException e) {
+        throw new RuntimeException("Error al guardar la imagen", e);
+      }
+    }
+
+    Category category = categoryRepository.findById(dto.getCategoryId())
         .orElseThrow(() -> new EntityNotFoundException("Category not found"));
 
+    Product product = productMapper.toEntity(dto);
+    product.setImage(imagePath);
     product.setCategory(category);
-    Product savedProduct = productRepository.save(product);
 
+    Product savedProduct = productRepository.save(product);
     return productMapper.toCreateResponse(savedProduct);
   }
 
   @Override
   public ProductUpdateResponseDto updateProduct(Long id, ProductUpdateRequestDto dto) {
-    Product product = productMapper.toEntity(dto);
-
     Product existing = productRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException("Product not found"));
 
-    product.setId(existing.getId());
-
-    Category category = categoryRepository.findById(product.getCategory().getId())
+    Category category = categoryRepository.findById(dto.getCategoryId())
         .orElseThrow(() -> new EntityNotFoundException("Category not found"));
 
-    product.setCategory(category);
+    String imagePath = existing.getImage();
 
-    Product updated = productRepository.save(product);
+    if (dto.getImage() != null && !dto.getImage().isEmpty()) {
+      imageStorageService.validateSize(dto.getImage());
+      imagePath = imageStorageService.store(dto.getImage());
+      imageStorageService.delete(existing.getImage());
+    }
 
-    return productMapper.toUpdateResponse(updated);
+    Product updated = productMapper.toEntity(dto);
+    updated.setId(existing.getId());
+    updated.setCategory(category);
+    updated.setImage(imagePath);
+    updated.setOrderDetails(existing.getOrderDetails());
+    updated.setProductionDetails(existing.getProductionDetails());
+
+    Product savedProduct = productRepository.save(updated);
+    return productMapper.toUpdateResponse(savedProduct);
   }
 
   @Override

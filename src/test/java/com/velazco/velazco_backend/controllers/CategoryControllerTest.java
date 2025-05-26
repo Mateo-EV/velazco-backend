@@ -28,7 +28,6 @@ import com.velazco.velazco_backend.dto.category.requests.CategoryUpdateRequestDt
 import com.velazco.velazco_backend.dto.category.responses.CategoryCreateResponseDto;
 import com.velazco.velazco_backend.dto.category.responses.CategoryListResponseDto;
 import com.velazco.velazco_backend.dto.category.responses.CategoryUpdateResponseDto;
-import com.velazco.velazco_backend.entities.Category;
 import com.velazco.velazco_backend.mappers.CategoryMapper;
 import com.velazco.velazco_backend.services.CategoryService;
 
