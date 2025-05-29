@@ -3,9 +3,11 @@ package com.velazco.velazco_backend.controllers;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,21 +49,21 @@ public class ProductController {
     return ResponseEntity.ok(products);
   }
 
-  @PostMapping
+  @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<ProductCreateResponseDto> createProduct(
-      @Valid @RequestBody ProductCreateRequestDto requestDTO) {
-
-    ProductCreateResponseDto responseDTO = productService.createProduct(requestDTO);
-    return ResponseEntity.status(HttpStatus.CREATED).body(responseDTO);
+      @Valid @ModelAttribute ProductCreateRequestDto requestDTO) {
+    return ResponseEntity
+        .status(HttpStatus.CREATED)
+        .body(productService.createProduct(requestDTO));
   }
 
-  @PutMapping("/{id}")
+  @PutMapping(path = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<ProductUpdateResponseDto> updateProduct(
       @PathVariable Long id,
-      @Valid @RequestBody ProductUpdateRequestDto requestDTO) {
+      @Valid @ModelAttribute ProductUpdateRequestDto requestDTO) {
 
-    ProductUpdateResponseDto responseDTO = productService.updateProduct(id, requestDTO);
-    return ResponseEntity.ok(responseDTO);
+    ProductUpdateResponseDto response = productService.updateProduct(id, requestDTO);
+    return ResponseEntity.ok(response);
   }
 
   @PatchMapping("/{id}/active")

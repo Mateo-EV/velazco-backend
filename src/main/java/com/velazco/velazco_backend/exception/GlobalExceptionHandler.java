@@ -40,6 +40,11 @@ public class GlobalExceptionHandler {
     return buildErrorResponse("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR, request);
   }
 
+  @ExceptionHandler(FileTooLargeException.class)
+  public ResponseEntity<ErrorResponse> handleFileTooLargeException(FileTooLargeException ex, WebRequest request) {
+    return buildErrorResponse(ex.getMessage(), HttpStatus.PAYLOAD_TOO_LARGE, request);
+  }
+
   private ResponseEntity<ErrorResponse> buildErrorResponse(Exception ex, HttpStatus status, WebRequest request) {
     return buildErrorResponse(ex.getMessage(), status, request);
   }
