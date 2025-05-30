@@ -1,5 +1,6 @@
 package com.velazco.velazco_backend.entities;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -27,7 +28,7 @@ public class Production {
   private Long id;
 
   @Column(name = "fecha_produccion", nullable = false)
-  private LocalDateTime productionDate;
+  private LocalDate productionDate;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "estado", nullable = false, length = 20)
@@ -42,7 +43,7 @@ public class Production {
   private User assignedTo;
 
   @OneToMany(mappedBy = "production")
-  private List<ProductionDetail> productionDetails;
+  private List<ProductionDetail> details;
 
   public static enum ProductionStatus {
     PENDIENTE, EN_PROCESO, COMPLETO, INCOMPLETO
