@@ -98,4 +98,25 @@ public class OrderServiceImpl implements OrderService {
 
     return orderMapper.toConfirmSaleResponse(order);
   }
+
+  @Override
+  public void deleteCancelledOrdersOlderThanOneDay() {
+    LocalDateTime cutoffTime = LocalDateTime.now().minusDays(1);
+    orderRepository.deleteByStatusAndDateBefore(Order.OrderStatus.CANCELADO, cutoffTime);
+  }
+
+  @Transactional
+  @Override
+  public void cancelOrder(Long orderId) {
+    Order order = orderRepository.findById(orderId)
+        .orElseThrow(() -> new EntityNotFoundException("Order not found with ID: " + orderId));
+
+    if (order.getStatus() != Order.OrderStatus.PENDIENTE) {
+      throw new IllegalStateException("El pedido no puede ser cancelado porque ya está " + order.getStatus());
+    }
+
+    order.setStatus(Order.OrderStatus.CANCELADO);
+    orderRepository.save(order);
+  }
+
 }
