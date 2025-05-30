@@ -45,7 +45,7 @@ public class Order {
   @OneToOne(mappedBy = "order")
   private Sale sale;
 
-  @OneToMany(mappedBy = "order", cascade = { CascadeType.PERSIST, CascadeType.MERGE }, orphanRemoval = true)
+  @OneToMany(mappedBy = "order", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
   private List<OrderDetail> details;
 
   public static enum OrderStatus {
