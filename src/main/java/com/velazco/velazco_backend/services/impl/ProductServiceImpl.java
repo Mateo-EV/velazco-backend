@@ -111,6 +111,8 @@ public class ProductServiceImpl implements ProductService {
     Product product = productRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException("Product not found"));
 
+    imageStorageService.delete(product.getImage());
+
     productRepository.delete(product);
   }
 
