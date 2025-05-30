@@ -1,6 +1,6 @@
 package com.velazco.velazco_backend.dto.production.response;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 import com.velazco.velazco_backend.entities.Production.ProductionStatus;
@@ -54,7 +54,7 @@ public class ProductionCreateResponseDto {
   }
 
   private Long id;
-  private LocalDateTime productionDate;
+  private LocalDate productionDate;
   private ProductionStatus status;
   private AssignedByProductionCreateResponseDto assignedBy;
   private AssignedToProductionCreateResponseDto assignedTo;

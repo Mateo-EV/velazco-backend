@@ -5,6 +5,7 @@ import com.velazco.velazco_backend.dto.production.response.ProductionCreateRespo
 import com.velazco.velazco_backend.entities.Product;
 import com.velazco.velazco_backend.entities.Production;
 import com.velazco.velazco_backend.entities.ProductionDetail;
+import com.velazco.velazco_backend.entities.ProductionDetailId;
 import com.velazco.velazco_backend.entities.User;
 import com.velazco.velazco_backend.mappers.ProductionMapper;
 import com.velazco.velazco_backend.repositories.ProductRepository;
@@ -52,6 +53,9 @@ public class ProductionServiceImpl implements ProductionService {
           .orElseThrow(() -> new EntityNotFoundException("Product not found"));
 
       detail.setProduct(product);
+      detail.setProduction(production);
+      detail.setProducedQuantity(0);
+      detail.setId(ProductionDetailId.builder().productId(product.getId()).build());
     }
 
     Production savedProduction = productionRepository.save(production);

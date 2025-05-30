@@ -1,9 +1,9 @@
 package com.velazco.velazco_backend.entities;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -15,6 +15,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,6 +24,8 @@ import lombok.NoArgsConstructor;
 @Table(name = "produccion")
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Production {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,7 +46,7 @@ public class Production {
   @JoinColumn(name = "asignado_a", nullable = false)
   private User assignedTo;
 
-  @OneToMany(mappedBy = "production")
+  @OneToMany(mappedBy = "production", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
   private List<ProductionDetail> details;
 
   public static enum ProductionStatus {
