@@ -21,9 +21,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
@@ -48,7 +48,7 @@ public class OrderController {
     try {
       orderStatus = Order.OrderStatus.valueOf(status.toUpperCase());
     } catch (IllegalArgumentException e) {
-      return ResponseEntity.badRequest().build(); 
+      return ResponseEntity.badRequest().build();
     }
 
     return ResponseEntity.ok(orderService.getOrdersByStatus(orderStatus, pageable));
@@ -58,7 +58,9 @@ public class OrderController {
   public ResponseEntity<OrderStartResponseDto> startOrder(
       @AuthenticationPrincipal User user,
       @Valid @RequestBody OrderStartRequestDto orderRequest) {
+
     OrderStartResponseDto responseDto = orderService.startOrder(user, orderRequest);
+
     return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
   }
 
@@ -69,6 +71,16 @@ public class OrderController {
       @Valid @RequestBody OrderConfirmSaleRequestDto requestDto) {
 
     OrderConfirmSaleResponseDto responseDto = orderService.confirmSale(id, cashier, requestDto.getPaymentMethod());
+
     return ResponseEntity.ok(responseDto);
   }
+
+  @PutMapping("/{orderId}/cancel")
+  public ResponseEntity<Void> cancelOrder(@PathVariable Long orderId) {
+
+    orderService.cancelOrder(orderId);
+
+    return ResponseEntity.noContent().build();
+  }
+
 }

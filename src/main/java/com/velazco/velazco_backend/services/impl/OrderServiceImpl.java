@@ -2,6 +2,9 @@ package com.velazco.velazco_backend.services.impl;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -60,14 +63,32 @@ public class OrderServiceImpl implements OrderService {
   @Transactional
   public OrderStartResponseDto startOrder(User user, OrderStartRequestDto orderRequest) {
     Order order = orderMapper.toEntity(orderRequest);
-
     order.setDate(LocalDateTime.now());
     order.setStatus(Order.OrderStatus.PENDIENTE);
     order.setAttendedBy(user);
 
+    List<Long> productIds = order.getDetails().stream()
+        .map(detail -> detail.getProduct().getId())
+        .distinct()
+        .toList();
+
+    List<Product> products = productRepository.findAllById(productIds);
+    Map<Long, Product> productMap = products.stream()
+        .collect(Collectors.toMap(Product::getId, p -> p));
+
     for (OrderDetail detail : order.getDetails()) {
-      Product product = productRepository.findById(detail.getProduct().getId())
-          .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+      Long productId = detail.getProduct().getId();
+      int quantity = detail.getQuantity();
+
+      int updatedRows = productRepository.decrementStock(productId, quantity);
+      if (updatedRows == 0) {
+        throw new IllegalStateException("No hay suficiente stock para el producto con ID: " + productId);
+      }
+
+      Product product = productMap.get(productId);
+      if (product == null) {
+        throw new EntityNotFoundException("Product not found with ID: " + productId);
+      }
 
       detail.setOrder(order);
       detail.setProduct(product);
@@ -75,12 +96,20 @@ public class OrderServiceImpl implements OrderService {
       detail.setId(OrderDetailId.builder().productId(product.getId()).build());
     }
 
-    return orderMapper.toStartResponse(orderRepository.save(order));
+    Order savedOrder = orderRepository.save(order);
+    return orderMapper.toStartResponse(savedOrder);
   }
 
+  @Transactional
   @Override
   public OrderConfirmSaleResponseDto confirmSale(Long orderId, User cashier, String paymentMethod) {
     Order order = getOrderById(orderId);
+
+    if (order.getStatus() != Order.OrderStatus.PENDIENTE) {
+      throw new IllegalStateException(
+          "No se puede confirmar la venta porque la orden está en estado: " + order.getStatus());
+    }
+
     order.setStatus(Order.OrderStatus.PAGADO);
 
     Sale sale = saleRepository.save(
@@ -96,6 +125,44 @@ public class OrderServiceImpl implements OrderService {
 
     order.setSale(sale);
 
+    orderRepository.save(order);
+
     return orderMapper.toConfirmSaleResponse(order);
   }
+
+  @Override
+  @Transactional
+  public void deleteCancelledOrdersOlderThanOneDay() {
+    LocalDateTime cutoffTime = LocalDateTime.now().minusDays(1);
+    List<Order> cancelledOrders = orderRepository.findByStatusAndDateBefore(Order.OrderStatus.CANCELADO, cutoffTime);
+
+    orderRepository.deleteAll(cancelledOrders);
+  }
+
+  @Transactional
+  @Override
+  public void cancelOrder(Long orderId) {
+    Order order = orderRepository.findById(orderId)
+        .orElseThrow(() -> new EntityNotFoundException("Order not found with ID: " + orderId));
+
+    if (order.getStatus() != Order.OrderStatus.PENDIENTE) {
+      throw new IllegalStateException("El pedido no puede ser cancelado porque ya está " + order.getStatus());
+    }
+
+    // Restaurar stock de cada producto del pedido
+    for (OrderDetail detail : order.getDetails()) {
+      Long productId = detail.getProduct().getId();
+      int quantity = detail.getQuantity();
+
+      int updatedRows = productRepository.restoreStock(productId, quantity);
+      if (updatedRows == 0) {
+        throw new EntityNotFoundException("Product not found with ID: " + productId);
+      }
+    }
+
+    // Cambiar estado del pedido a CANCELADO
+    order.setStatus(Order.OrderStatus.CANCELADO);
+    orderRepository.save(order);
+  }
+
 }

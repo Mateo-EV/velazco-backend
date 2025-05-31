@@ -18,4 +18,8 @@ public interface OrderService {
     OrderStartResponseDto startOrder(User user, OrderStartRequestDto orderRequest);
 
     OrderConfirmSaleResponseDto confirmSale(Long orderId, User cashier, String paymentMethod);
+
+    void deleteCancelledOrdersOlderThanOneDay();
+
+    void cancelOrder(Long orderId);
 }
