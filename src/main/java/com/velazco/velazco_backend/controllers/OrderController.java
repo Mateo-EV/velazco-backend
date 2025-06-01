@@ -3,6 +3,7 @@ package com.velazco.velazco_backend.controllers;
 import com.velazco.velazco_backend.dto.PaginatedResponseDto;
 import com.velazco.velazco_backend.dto.order.requests.OrderConfirmSaleRequestDto;
 import com.velazco.velazco_backend.dto.order.requests.OrderStartRequestDto;
+import com.velazco.velazco_backend.dto.order.responses.OrderConfirmDispatchResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderConfirmSaleResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderListResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderStartResponseDto;
@@ -72,7 +73,18 @@ public class OrderController {
 
     OrderConfirmSaleResponseDto responseDto = orderService.confirmSale(id, cashier, requestDto.getPaymentMethod());
 
-    return ResponseEntity.ok(responseDto);
+    return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+  }
+
+  @PostMapping("/{id}/confirm-dispatch")
+  public ResponseEntity<OrderConfirmDispatchResponseDto> confirmDispatch(
+      @PathVariable Long id,
+      @AuthenticationPrincipal User dispatchedBy) {
+
+    OrderConfirmDispatchResponseDto responseDto = orderService.confirmDispatch(id, dispatchedBy);
+
+    return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
+
   }
 
   @PutMapping("/{orderId}/cancel")
