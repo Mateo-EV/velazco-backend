@@ -46,7 +46,7 @@ public class Production {
   @JoinColumn(name = "asignado_a", nullable = false)
   private User assignedTo;
 
-  @OneToMany(mappedBy = "production", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+  @OneToMany(mappedBy = "production", cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE })
   private List<ProductionDetail> details;
 
   public static enum ProductionStatus {

@@ -11,14 +11,14 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class OrderCleanupScheduler {
 
-    private static final Logger logger = LoggerFactory.getLogger(OrderCleanupScheduler.class);
+  private static final Logger logger = LoggerFactory.getLogger(OrderCleanupScheduler.class);
 
-    private final OrderService orderService;
+  private final OrderService orderService;
 
-    @Scheduled(cron = "0 59 23 * * ?")
-    public void deleteCancelledOrders() {
-        logger.info("🗑️ Ejecutando limpieza de órdenes canceladas (Scheduler iniciado)...");
-        orderService.deleteCancelledOrdersOlderThanOneDay();
-        logger.info("✅ Limpieza de órdenes canceladas completada.");
-    }
+  @Scheduled(cron = "0 59 23 * * ?")
+  public void deleteCancelledOrders() {
+    logger.info("🗑️ Ejecutando limpieza de órdenes canceladas (Scheduler iniciado)...");
+    orderService.deleteCancelledOrdersOlderThanOneDay();
+    logger.info("✅ Limpieza de órdenes canceladas completada.");
+  }
 }

@@ -1,6 +1,7 @@
 package com.velazco.velazco_backend.controllers;
 
 import static org.mockito.ArgumentMatchers.eq;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -124,5 +125,14 @@ public class ProductionControllerTest {
         .andExpect(jsonPath("$.details[0].product.id").value(1L))
         .andExpect(jsonPath("$.details[0].product.name").value("Product 1"));
 
+  }
+
+  @Test
+  @WithMockUser
+  void shouldDeleteProduction() throws Exception {
+    Mockito.doNothing().when(productionService).deleteProductionById(1L);
+
+    mockMvc.perform(delete("/api/productions/1").with(csrf()))
+        .andExpect(status().isNoContent());
   }
 }

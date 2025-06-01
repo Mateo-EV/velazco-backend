@@ -34,7 +34,7 @@ public class ProductionController {
 
   @DeleteMapping("/{id}")
   ResponseEntity<Void> deleteProduction(@PathVariable Long id) {
-    productionService.deleteProduction(id);
+    productionService.deleteProductionById(id);
     return ResponseEntity.noContent().build();
   }
 }

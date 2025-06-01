@@ -14,17 +14,17 @@ import com.velazco.velazco_backend.entities.Category;
 
 @Mapper(componentModel = "spring")
 public interface CategoryMapper {
-    List<CategoryListResponseDto> toListResponse(List<Category> category);
+  List<CategoryListResponseDto> toListResponse(List<Category> category);
 
-    CategoryCreateResponseDto toCreateResponse(Category category);
+  CategoryCreateResponseDto toCreateResponse(Category category);
 
-    CategoryUpdateResponseDto toUpdateResponse(Category category);
+  CategoryUpdateResponseDto toUpdateResponse(Category category);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "products", ignore = true)
-    Category toEntity(CategoryCreateRequestDto dto);
+  @Mapping(target = "id", ignore = true)
+  @Mapping(target = "products", ignore = true)
+  Category toEntity(CategoryCreateRequestDto dto);
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "products", ignore = true)
-    Category toEntity(CategoryUpdateRequestDto dto);
+  @Mapping(target = "id", ignore = true)
+  @Mapping(target = "products", ignore = true)
+  Category toEntity(CategoryUpdateRequestDto dto);
 }

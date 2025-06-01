@@ -63,7 +63,7 @@ public class ProductionServiceImpl implements ProductionService {
   }
 
   @Override
-  public void deleteProduction(Long productionId) {
+  public void deleteProductionById(Long productionId) {
     Production production = productionRepository.findById(productionId)
         .orElseThrow(() -> new EntityNotFoundException("Production not found"));
 
