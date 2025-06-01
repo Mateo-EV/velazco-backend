@@ -61,4 +61,12 @@ public class ProductionServiceImpl implements ProductionService {
     Production savedProduction = productionRepository.save(production);
     return productionMapper.toCreateResponseDto(savedProduction);
   }
+
+  @Override
+  public void deleteProductionById(Long productionId) {
+    Production production = productionRepository.findById(productionId)
+        .orElseThrow(() -> new EntityNotFoundException("Production not found"));
+
+    productionRepository.delete(production);
+  }
 }
