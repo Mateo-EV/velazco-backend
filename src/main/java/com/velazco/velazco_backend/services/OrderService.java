@@ -5,21 +5,24 @@ import org.springframework.data.domain.Pageable;
 import com.velazco.velazco_backend.dto.PaginatedResponseDto;
 import com.velazco.velazco_backend.dto.order.requests.OrderStartRequestDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderListResponseDto;
+import com.velazco.velazco_backend.dto.order.responses.OrderConfirmDispatchResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderConfirmSaleResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderStartResponseDto;
 import com.velazco.velazco_backend.entities.Order;
 import com.velazco.velazco_backend.entities.User;
 
 public interface OrderService {
-    PaginatedResponseDto<OrderListResponseDto> getOrdersByStatus(Order.OrderStatus status, Pageable pageable);
+  PaginatedResponseDto<OrderListResponseDto> getOrdersByStatus(Order.OrderStatus status, Pageable pageable);
 
-    Order getOrderById(Long id);
+  Order getOrderById(Long id);
 
-    OrderStartResponseDto startOrder(User user, OrderStartRequestDto orderRequest);
+  OrderStartResponseDto startOrder(User user, OrderStartRequestDto orderRequest);
 
-    OrderConfirmSaleResponseDto confirmSale(Long orderId, User cashier, String paymentMethod);
+  OrderConfirmSaleResponseDto confirmSale(Long orderId, User cashier, String paymentMethod);
 
-    void deleteCancelledOrdersOlderThanOneDay();
+  void deleteCancelledOrdersOlderThanOneDay();
 
-    void cancelOrder(Long orderId);
+  OrderConfirmDispatchResponseDto confirmDispatch(Long orderId, User dispatchedBy);
+
+  void cancelOrder(Long orderId);
 }

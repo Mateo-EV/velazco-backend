@@ -13,15 +13,19 @@ import org.springframework.stereotype.Service;
 import com.velazco.velazco_backend.dto.PaginatedResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderListResponseDto;
 import com.velazco.velazco_backend.dto.order.requests.OrderStartRequestDto;
+import com.velazco.velazco_backend.dto.order.responses.OrderConfirmDispatchResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderConfirmSaleResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderStartResponseDto;
+import com.velazco.velazco_backend.entities.Dispatch;
 import com.velazco.velazco_backend.entities.Order;
 import com.velazco.velazco_backend.entities.OrderDetail;
 import com.velazco.velazco_backend.entities.OrderDetailId;
 import com.velazco.velazco_backend.entities.Product;
 import com.velazco.velazco_backend.entities.Sale;
 import com.velazco.velazco_backend.entities.User;
+import com.velazco.velazco_backend.entities.Order.OrderStatus;
 import com.velazco.velazco_backend.mappers.OrderMapper;
+import com.velazco.velazco_backend.repositories.DispatchRepository;
 import com.velazco.velazco_backend.repositories.OrderRepository;
 import com.velazco.velazco_backend.repositories.ProductRepository;
 import com.velazco.velazco_backend.repositories.SaleRepository;
@@ -38,6 +42,7 @@ public class OrderServiceImpl implements OrderService {
   private final OrderRepository orderRepository;
   private final SaleRepository saleRepository;
   private final ProductRepository productRepository;
+  private final DispatchRepository dispatchRepository;
 
   private final OrderMapper orderMapper;
 
@@ -137,6 +142,31 @@ public class OrderServiceImpl implements OrderService {
     List<Order> cancelledOrders = orderRepository.findByStatusAndDateBefore(Order.OrderStatus.CANCELADO, cutoffTime);
 
     orderRepository.deleteAll(cancelledOrders);
+  }
+
+  @Override
+  @Transactional
+  public OrderConfirmDispatchResponseDto confirmDispatch(Long orderId, User dispatchedBy) {
+    Order order = getOrderById(orderId);
+
+    if (order.getStatus() != Order.OrderStatus.PAGADO) {
+      throw new IllegalStateException("El pedido no puede ser enviado porque está en estado: " + order.getStatus());
+    }
+
+    order.setStatus(OrderStatus.ENTREGADO);
+
+    Dispatch dispatch = dispatchRepository.save(
+        Dispatch.builder()
+            .deliveryDate(LocalDateTime.now())
+            .order(order)
+            .dispatchedBy(dispatchedBy)
+            .build());
+
+    order.setDispatch(dispatch);
+
+    orderRepository.save(order);
+
+    return orderMapper.toConfirmDispatchResponse(order);
   }
 
   @Transactional

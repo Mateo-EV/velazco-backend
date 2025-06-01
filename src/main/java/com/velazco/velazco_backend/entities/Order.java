@@ -45,6 +45,9 @@ public class Order {
   @OneToOne(mappedBy = "order")
   private Sale sale;
 
+  @OneToOne(mappedBy = "order")
+  private Dispatch dispatch;
+
   @OneToMany(mappedBy = "order", cascade = { CascadeType.PERSIST, CascadeType.MERGE })
   private List<OrderDetail> details;
 

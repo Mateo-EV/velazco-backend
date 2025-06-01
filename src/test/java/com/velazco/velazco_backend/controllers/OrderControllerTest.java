@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.velazco.velazco_backend.dto.PaginatedResponseDto;
 import com.velazco.velazco_backend.dto.order.requests.OrderConfirmSaleRequestDto;
 import com.velazco.velazco_backend.dto.order.requests.OrderStartRequestDto;
+import com.velazco.velazco_backend.dto.order.responses.OrderConfirmDispatchResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderConfirmSaleResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderListResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderStartResponseDto;
@@ -52,7 +53,7 @@ class OrderControllerTest {
   @Test
   @WithMockUser
   void shouldGetOrdersByStatusSuccessfully() throws Exception {
-    
+
     User user = new User();
     user.setId(1L);
     user.setName("Mateo Velazco");
@@ -103,7 +104,7 @@ class OrderControllerTest {
   @Test
   @WithMockUser
   void shouldStartOrderSuccessfully() throws Exception {
-    
+
     OrderStartRequestDto requestDto = OrderStartRequestDto.builder()
         .clientName("John Doe")
         .details(List.of(
@@ -156,7 +157,7 @@ class OrderControllerTest {
   @Test
   @WithMockUser
   void shouldConfirmSale() throws Exception {
-    
+
     Long orderId = 100L;
     String paymentMethod = "Efectivo";
 
@@ -178,11 +179,12 @@ class OrderControllerTest {
             .saleDate(LocalDateTime.now())
             .paymentMethod(paymentMethod)
             .totalAmount(BigDecimal.valueOf(100.0))
-            .cashier(OrderConfirmSaleResponseDto.SaleOrderConfirmSaleResponseDto.CashierSaleOrderConfirmSaleResponseDto
-                .builder()
-                .id(10L)
-                .name("Mateo Velazco")
-                .build())
+            .cashier(
+                OrderConfirmSaleResponseDto.SaleOrderConfirmSaleResponseDto.CashierSaleOrderConfirmSaleResponseDto
+                    .builder()
+                    .id(10L)
+                    .name("Mateo Velazco")
+                    .build())
             .build())
         .build();
 
@@ -194,12 +196,54 @@ class OrderControllerTest {
         .with(user(user))
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(requestDto)))
-        .andExpect(status().isOk())
+        .andExpect(status().isCreated())
         .andExpect(jsonPath("$.id").value(orderId))
         .andExpect(jsonPath("$.clientName").value("John Doe"))
         .andExpect(jsonPath("$.status").value("PAGADO"))
         .andExpect(jsonPath("$.sale.id").value(200L))
         .andExpect(jsonPath("$.sale.totalAmount").value(100.0));
+  }
+
+  @Test
+  @WithMockUser
+  void shouldDispatchOrderSuccessfully() throws Exception {
+
+    Long orderId = 100L;
+
+    User user = new User();
+    user.setId(10L);
+    user.setName("Mateo Velazco");
+
+    OrderConfirmDispatchResponseDto responseDto = OrderConfirmDispatchResponseDto.builder()
+        .id(orderId)
+        .date(LocalDateTime.now())
+        .clientName("John Doe")
+        .status(Order.OrderStatus.ENTREGADO.name())
+        .dispatch(OrderConfirmDispatchResponseDto.DispatchConfirmDispatchResponseDto.builder()
+            .id(user.getId())
+            .deliveryDate(LocalDateTime.now())
+            .dispatchedBy(
+                OrderConfirmDispatchResponseDto.DispatchConfirmDispatchResponseDto.UserDispatchConfirmDispatchResponseDto
+                    .builder()
+                    .id(user.getId())
+                    .name(user.getName())
+                    .build())
+            .build())
+        .build();
+
+    Mockito.when(orderService.confirmDispatch(eq(orderId), eq(user)))
+        .thenReturn(responseDto);
+
+    mockMvc.perform(post("/api/orders/{id}/confirm-dispatch", orderId)
+        .with(csrf())
+        .with(user(user)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.id").value(orderId))
+        .andExpect(jsonPath("$.clientName").value("John Doe"))
+        .andExpect(jsonPath("$.status").value("ENTREGADO"))
+        .andExpect(jsonPath("$.dispatch.id").value(user.getId()))
+        .andExpect(jsonPath("$.dispatch.dispatchedBy.id").value(user.getId()))
+        .andExpect(jsonPath("$.dispatch.dispatchedBy.name").value(user.getName()));
   }
 
   @Test
