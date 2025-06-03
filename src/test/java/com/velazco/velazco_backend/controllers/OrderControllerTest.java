@@ -258,4 +258,65 @@ class OrderControllerTest {
         .with(csrf()))
         .andExpect(status().isNoContent());
   }
+
+  @Test
+  @WithMockUser
+  void shouldFilterOrdersSuccessfully() throws Exception {
+
+    String status = "PAGADO";
+    Long orderId = 1L;
+    String clientName = "John Doe";
+    int page = 0;
+    int size = 10;
+
+    User user = new User();
+    user.setId(1L);
+    user.setName("Mateo Velazco");
+
+    OrderListResponseDto.AttendedByListResponseDto attendedByDto = new OrderListResponseDto.AttendedByListResponseDto(
+        user.getId(), user.getName());
+
+    OrderListResponseDto.DetailsOrderResponseDto detailDto = new OrderListResponseDto.DetailsOrderResponseDto(2,
+        BigDecimal.valueOf(10.0),
+        new OrderStartResponseDto.ProductOrderStartResponseDto(1L, "Producto 1"));
+
+    OrderListResponseDto dto = OrderListResponseDto.builder()
+        .id(1L)
+        .date(LocalDateTime.now())
+        .clientName("John Doe")
+        .status(Order.OrderStatus.PAGADO.name())
+        .attendedBy(attendedByDto)
+        .details(List.of(detailDto))
+        .build();
+
+    PaginatedResponseDto<OrderListResponseDto> paginatedResponse = PaginatedResponseDto
+        .<OrderListResponseDto>builder()
+        .content(List.of(dto))
+        .currentPage(page)
+        .totalItems(1)
+        .totalPages(1)
+        .build();
+
+    Mockito.when(orderService.filterOrders(eq(status), eq(orderId), eq(clientName), any(Pageable.class)))
+        .thenReturn(paginatedResponse);
+
+    mockMvc.perform(get("/api/orders/filter")
+        .param("status", status)
+        .param("orderId", orderId.toString())
+        .param("clientName", clientName)
+        .param("page", String.valueOf(page))
+        .param("size", String.valueOf(size)))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content[0].id").value(1))
+        .andExpect(jsonPath("$.content[0].clientName").value("John Doe"))
+        .andExpect(jsonPath("$.content[0].status").value("PAGADO"))
+        .andExpect(jsonPath("$.content[0].attendedBy.name").value("Mateo Velazco"))
+        .andExpect(jsonPath("$.content[0].details[0].product.id").value(1L))
+        .andExpect(jsonPath("$.content[0].details[0].quantity").value(2))
+        .andExpect(jsonPath("$.content[0].details[0].unitPrice").value(10.0))
+        .andExpect(jsonPath("$.currentPage").value(0))
+        .andExpect(jsonPath("$.totalItems").value(1))
+        .andExpect(jsonPath("$.totalPages").value(1));
+  }
+
 }
