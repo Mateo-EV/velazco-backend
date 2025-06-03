@@ -25,4 +25,10 @@ public interface OrderService {
   OrderConfirmDispatchResponseDto confirmDispatch(Long orderId, User dispatchedBy);
 
   void cancelOrder(Long orderId);
+
+  PaginatedResponseDto<OrderListResponseDto> filterOrders(String status,
+      Long orderId,
+      String clientName,
+      Pageable pageable);
+
 }

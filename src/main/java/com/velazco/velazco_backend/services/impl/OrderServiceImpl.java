@@ -195,4 +195,32 @@ public class OrderServiceImpl implements OrderService {
     orderRepository.save(order);
   }
 
+  @Override
+  public PaginatedResponseDto<OrderListResponseDto> filterOrders(
+      String status,
+      Long orderId,
+      String clientName,
+      Pageable pageable) {
+
+    Order.OrderStatus orderStatus;
+    try {
+      orderStatus = Order.OrderStatus.valueOf(status.toUpperCase());
+    } catch (IllegalArgumentException e) {
+      throw new IllegalArgumentException("Estado inválido. Solo se permite PAGADO o ENTREGADO.");
+    }
+
+    if (orderStatus != Order.OrderStatus.PAGADO && orderStatus != Order.OrderStatus.ENTREGADO) {
+      throw new IllegalArgumentException("Estado inválido. Solo se permite PAGADO o ENTREGADO.");
+    }
+
+    Page<Order> orderPage = orderRepository.findByStatusAndOptionalFilters(orderStatus, orderId, clientName, pageable);
+
+    return PaginatedResponseDto.<OrderListResponseDto>builder()
+        .content(orderMapper.toListResponse(orderPage.getContent()))
+        .currentPage(orderPage.getNumber())
+        .totalItems(orderPage.getTotalElements())
+        .totalPages(orderPage.getTotalPages())
+        .build();
+  }
+
 }
