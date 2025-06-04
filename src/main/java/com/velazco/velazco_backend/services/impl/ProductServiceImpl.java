@@ -27,6 +27,7 @@ import com.velazco.velazco_backend.services.ImageStorageService;
 import com.velazco.velazco_backend.services.ProductService;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -108,6 +109,7 @@ public class ProductServiceImpl implements ProductService {
   }
 
   @Override
+  @Transactional
   public void deleteProductById(Long id) {
     Product product = productRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException("Product not found"));
