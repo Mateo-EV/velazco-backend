@@ -43,6 +43,12 @@ public class GlobalExceptionHandler {
     return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, request);
   }
 
+  @ExceptionHandler(GeneralBadRequestException.class)
+  public ResponseEntity<ErrorResponse> handleGeneralBadRequest(GeneralBadRequestException ex, WebRequest request) {
+    logger.warn("General bad request: {}", ex.getMessage());
+    return buildErrorResponse(ex.getMessage(), HttpStatus.BAD_REQUEST, request);
+  }
+
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex, WebRequest request) {
     logger.warn("Illegal argument: {}", ex.getMessage());

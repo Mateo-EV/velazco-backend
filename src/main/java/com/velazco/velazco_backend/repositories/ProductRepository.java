@@ -22,4 +22,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
   @Query("UPDATE Product p SET p.stock = p.stock + :quantity WHERE p.id = :productId")
   int restoreStock(@Param("productId") Long productId, @Param("quantity") int quantity);
 
+  @Query("SELECT COUNT(o) > 0 FROM OrderDetail o WHERE o.product.id = :productId")
+  boolean hasOrderDetails(Long productId);
+
+  @Query("SELECT COUNT(p) > 0 FROM ProductionDetail p WHERE p.product.id = :productId")
+  boolean hasProductionDetails(Long productId);
 }

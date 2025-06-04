@@ -19,6 +19,7 @@ import com.velazco.velazco_backend.dto.product.responses.ProductUpdateResponseDt
 import com.velazco.velazco_backend.entities.Category;
 import com.velazco.velazco_backend.entities.Product;
 import com.velazco.velazco_backend.exception.FileTooLargeException;
+import com.velazco.velazco_backend.exception.GeneralBadRequestException;
 import com.velazco.velazco_backend.mappers.ProductMapper;
 import com.velazco.velazco_backend.repositories.CategoryRepository;
 import com.velazco.velazco_backend.repositories.ProductRepository;
@@ -111,9 +112,14 @@ public class ProductServiceImpl implements ProductService {
     Product product = productRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException("Product not found"));
 
-    imageStorageService.delete(product.getImage());
+    if (productRepository.hasOrderDetails(id) || productRepository.hasProductionDetails(id)) {
+      throw new GeneralBadRequestException(
+          "No se puede eliminar un producto que tiene órdenes o detalles de producción asociados");
+    }
 
     productRepository.delete(product);
+
+    imageStorageService.delete(product.getImage());
   }
 
   @Override
