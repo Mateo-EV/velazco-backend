@@ -1,6 +1,7 @@
 package com.velazco.velazco_backend.services.impl;
 
 import com.velazco.velazco_backend.dto.production.request.ProductionCreateRequestDto;
+import com.velazco.velazco_backend.dto.production.request.ProductionUpdateRequestDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionCreateResponseDto;
 import com.velazco.velazco_backend.entities.Product;
 import com.velazco.velazco_backend.entities.Production;
@@ -17,6 +18,9 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 
@@ -28,6 +32,14 @@ public class ProductionServiceImpl implements ProductionService {
   private final ProductRepository productRepository;
 
   private final ProductionMapper productionMapper;
+
+  @Override
+  public List<ProductionCreateResponseDto> getAllProductions() {
+    List<Production> productions = productionRepository.findAll();
+    return productions.stream()
+        .map(productionMapper::toCreateResponseDto)
+        .toList();
+  }
 
   @Override
   public ProductionCreateResponseDto createProduction(ProductionCreateRequestDto request, User assignedBy) {
@@ -69,4 +81,56 @@ public class ProductionServiceImpl implements ProductionService {
 
     productionRepository.delete(production);
   }
+
+  @Override
+  public ProductionCreateResponseDto updateProduction(Long id, ProductionUpdateRequestDto dto, User updatedBy) {
+    Production existing = productionRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("Production not found with ID: " + id));
+
+    User assignedTo = userRepository.findById(dto.getAssignedToId())
+        .orElseThrow(() -> new EntityNotFoundException("Assigned user not found with ID: " + dto.getAssignedToId()));
+
+    existing.setProductionDate(dto.getProductionDate());
+    existing.setStatus(dto.getStatus());
+    existing.setAssignedTo(assignedTo);
+
+    Map<Long, ProductionDetail> existingDetails = existing.getDetails().stream()
+        .collect(Collectors.toMap(
+            detail -> detail.getProduct().getId(),
+            detail -> detail));
+
+    Set<Long> requestedProductIds = dto.getDetails().stream()
+        .map(ProductionUpdateRequestDto.ProductionDetailUpdateRequestDto::getProductId)
+        .collect(Collectors.toSet());
+
+    // ESTA LÍNEA ES CLAVE: elimina los detalles que no están en el request
+    existing.getDetails().removeIf(detail -> !requestedProductIds.contains(detail.getProduct().getId()));
+
+    for (ProductionUpdateRequestDto.ProductionDetailUpdateRequestDto detailDto : dto.getDetails()) {
+      ProductionDetail detail = existingDetails.get(detailDto.getProductId());
+
+      if (detail != null) {
+        detail.setRequestedQuantity(detailDto.getRequestedQuantity());
+        detail.setComments(detailDto.getComments());
+      } else {
+        Product product = productRepository.findById(detailDto.getProductId())
+            .orElseThrow(() -> new EntityNotFoundException("Product not found with ID: " + detailDto.getProductId()));
+
+        ProductionDetail newDetail = new ProductionDetail();
+        newDetail.setId(ProductionDetailId.builder().productId(product.getId()).build());
+        newDetail.setProduction(existing);
+        newDetail.setProduct(product);
+        newDetail.setRequestedQuantity(detailDto.getRequestedQuantity());
+        newDetail.setProducedQuantity(0);
+        newDetail.setComments(detailDto.getComments());
+
+        existing.getDetails().add(newDetail);
+      }
+    }
+
+    Production savedProduction = productionRepository.save(existing);
+
+    return productionMapper.toCreateResponseDto(savedProduction);
+  }
+
 }
