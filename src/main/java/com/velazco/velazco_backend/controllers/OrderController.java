@@ -89,7 +89,7 @@ public class OrderController {
 
   @PutMapping("/{orderId}/cancel")
   public ResponseEntity<Void> cancelOrder(@PathVariable Long orderId) {
-
+    // Check if the order exists
     orderService.cancelOrder(orderId);
 
     return ResponseEntity.noContent().build();
@@ -111,5 +111,4 @@ public class OrderController {
     return ResponseEntity.ok(response);
   }
 
-  
 }
