@@ -90,6 +90,7 @@ public class OrderController {
   @PutMapping("/{orderId}/cancel")
   public ResponseEntity<Void> cancelOrder(@PathVariable Long orderId) {
     // Check if the order exists
+    // Order order = orderService.getOrderById(orderId);
     orderService.cancelOrder(orderId);
 
     return ResponseEntity.noContent().build();
