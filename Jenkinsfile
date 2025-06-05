@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent  {
+        docker {
+            image 'maven:3.9.0-eclipse-temurin-21'
+            args '-v $HOME/.m2:/root/.m2'
+        }
+    }
 
     environment {
         JAVA_VERSION = '21'
@@ -12,16 +17,6 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
-            }
-        }
-
-        stage('Set up JDK') {
-             steps {
-                script {
-                    def javaHome = tool name: 'jdk-21', type: 'jdk'
-                    env.JAVA_HOME = javaHome
-                    sh 'java -version'
-                }
             }
         }
 
