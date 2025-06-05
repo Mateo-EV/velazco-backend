@@ -58,17 +58,18 @@ pipeline {
                     curl -H "Content-Type: application/json" \
                         -X POST \
                         -d '{
-                            "content": "🛠️ **Push a `develop`** en `${env.JOB_NAME}` por **${author}**.\\n\\n\
-                            🔗 **Swagger:** ${DEV_BASE_URL}/swagger-ui.html\\n\
-                            🌐 **Home:** ${DEV_BASE_URL}\\n\
-                            📝 **Commit:** ${commitMessage}\\n\
-                            🔍 [Ver commit](${commitUrl})"
+                            "content": "🛠️ **Push a `develop`** en `${env.JOB_NAME}` por **${author}**.\\n\
+        🔗 **Swagger:** ${DEV_BASE_URL}/swagger-ui.html\\n\
+        🌐 **Home:** ${DEV_BASE_URL}\\n\
+        📝 **Commit:** ${commitMessage}\\n\
+        🔍 [Ver commit](${commitUrl})"
                         }' \
                         ${DISCORD_WEBHOOK_DEVELOP}
                     """
                 }
             }
         }
+
 
 
 
