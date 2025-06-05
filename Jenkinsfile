@@ -17,8 +17,8 @@ pipeline {
 
         stage('Set up JDK') {
             steps {
-                tool name: 'jdk-21', type: 'jdk'
-                env.JAVA_HOME = "${tool 'jdk-21'}"
+                def javaHome = tool name: 'jdk-21', type: 'jdk'
+                env.JAVA_HOME = javaHome
                 sh 'java -version'
             }
         }
