@@ -16,10 +16,12 @@ pipeline {
         }
 
         stage('Set up JDK') {
-            steps {
-                def javaHome = tool name: 'jdk-21', type: 'jdk'
-                env.JAVA_HOME = javaHome
-                sh 'java -version'
+             steps {
+                script {
+                    def javaHome = tool name: 'jdk-21', type: 'jdk'
+                    env.JAVA_HOME = javaHome
+                    sh 'java -version'
+                }
             }
         }
 
