@@ -5,6 +5,7 @@ pipeline {
         JAVA_VERSION = '21'
         DISCORD_WEBHOOK_DEVELOP = credentials('DISCORD_WEBHOOK_DEVELOP')
         DEV_BASE_URL = credentials('DEV_BASE_URL')
+        RAILWAY_API_TOKEN = credentials('RAILWAY_API_TOKEN')
     }
 
     stages {
@@ -59,11 +60,18 @@ pipeline {
             }
         }
 
-        // stage('Deploy to Railway') {
-        //     steps {
-        //         // Igual que en Actions, usando curl
-        //     }
-        // }
+        stage('Deploy to Railway') {
+          when {
+              branch 'main'
+          }
+          steps {
+              sh '''
+                  curl -sSL https://railway.app/install.sh | sh
+                  ./bin/railway login --service-token ${RAILWAY_API_TOKEN}
+                  ./bin/railway up
+              '''
+          }
+      }
     }
 
     post {
