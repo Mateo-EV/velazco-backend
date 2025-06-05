@@ -8,6 +8,12 @@ pipeline {
         RAILWAY_API_TOKEN = credentials('RAILWAY_API_TOKEN')
     }
 
+    tools {
+        // Si usas Jenkins con JDK tool configurado, puedes declarar aquí
+        jdk 'jdk-21'
+        maven 'maven'
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -21,8 +27,8 @@ pipeline {
                     def jdkHome = tool name: 'jdk-21', type: 'jdk'
                     env.JAVA_HOME = "${jdkHome}"
                     env.PATH = "${jdkHome}/bin:${env.PATH}"
+                    sh 'java -version'
                 }
-                sh 'java -version'
             }
         }
 
@@ -64,17 +70,17 @@ pipeline {
         }
 
         stage('Deploy to Railway') {
-          when {
-              branch 'main'
-          }
-          steps {
-              sh '''
-                  curl -sSL https://railway.app/install.sh | sh
-                  ./bin/railway login --service-token ${RAILWAY_API_TOKEN}
-                  ./bin/railway up
-              '''
-          }
-      }
+            when {
+                branch 'main'
+            }
+            steps {
+                sh '''
+                    curl -sSL https://railway.app/install.sh | sh
+                    ./bin/railway login --service-token ${RAILWAY_API_TOKEN}
+                    ./bin/railway up
+                '''
+            }
+        }
     }
 
     post {
