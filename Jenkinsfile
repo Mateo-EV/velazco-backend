@@ -52,12 +52,13 @@ pipeline {
                 script {
                     def commitMessage = sh(script: "git log -1 --pretty=%s", returnStdout: true).trim()
                     def commitUrl = "https://github.com/${env.JOB_NAME}/commit/${env.GIT_COMMIT}"
+                    def author = sh(script: "git log -1 --pretty=format:'%an'", returnStdout: true).trim()
 
                     sh """
                     curl -H "Content-Type: application/json" \
                         -X POST \
                         -d '{
-                            "content": "🛠️ **Push a `develop`** en `${env.JOB_NAME}` por **${env.BUILD_USER_ID}**.\\n\\n\
+                            "content": "🛠️ **Push a \`develop\`** en \`${env.JOB_NAME}\` por **${author}**.\\n\\n\
                             🔗 **Swagger:** ${DEV_BASE_URL}/swagger-ui.html\\n\
                             🌐 **Home:** ${DEV_BASE_URL}\\n\
                             📝 **Commit:** ${commitMessage}\\n\
@@ -68,6 +69,7 @@ pipeline {
                 }
             }
         }
+
 
         stage('Deploy to Railway') {
             when {
