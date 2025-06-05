@@ -51,7 +51,7 @@ pipeline {
             steps {
                 script {
                     def commitMessage = sh(script: "git log -1 --pretty=%s", returnStdout: true).trim()
-                    def commitUrl = "https://github.com/${env.JOB_NAME}/commit/${env.GIT_COMMIT}"
+                    def commitUrl = "https://github.com/Mateo-EV/velazco-backend/commit/${env.GIT_COMMIT}"
                     def author = sh(script: "git log -1 --pretty=format:'%an'", returnStdout: true).trim()
 
                     sh """
