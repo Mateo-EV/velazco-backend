@@ -17,20 +17,20 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ProductCreateRequestDto {
 
-    @NotBlank
-    private String name;
+  @NotBlank
+  private String name;
 
-    @NotNull
-    private BigDecimal price;
+  @NotNull
+  private BigDecimal price;
 
-    @NotNull
-    private Integer stock;
+  @NotNull
+  private Integer stock;
 
-    @NotNull
-    private Boolean active;
+  @NotNull
+  private Boolean active;
 
-    @NotNull
-    private Long categoryId;
+  @NotNull
+  private Long categoryId;
 
-    private MultipartFile image; 
+  private MultipartFile image;
 }
