@@ -1,5 +1,19 @@
 package com.velazco.velazco_backend.controllers;
 
+import java.util.List;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.velazco.velazco_backend.dto.production.request.ProductionCreateRequestDto;
 import com.velazco.velazco_backend.dto.production.request.ProductionUpdateRequestDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionCreateResponseDto;
@@ -9,21 +23,6 @@ import com.velazco.velazco_backend.services.ProductionService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-
-import java.util.List;
-
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/productions")
@@ -60,7 +59,7 @@ public class ProductionController {
     return ResponseEntity.ok(response);
   }
 
-  @GetMapping("/today")
+  @GetMapping("/daily")
   public List<ProductionListResponseDto> getDailyProductions() {
     return productionService.getDailyProductions();
   }
