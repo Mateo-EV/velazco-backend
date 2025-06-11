@@ -12,6 +12,7 @@ import com.velazco.velazco_backend.services.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -22,6 +23,8 @@ public class UserServiceImpl implements UserService {
 
   private final UserMapper userMapper;
 
+  private final PasswordEncoder passwordEncoder;
+
   @Override
   public UserCreateResponseDto createUser(UserCreateRequestDto request) {
     User user = userMapper.toEntity(request);
@@ -30,6 +33,7 @@ public class UserServiceImpl implements UserService {
         .orElseThrow(() -> new EntityNotFoundException("Role not found"));
 
     user.setRole(role);
+    user.setPassword(passwordEncoder.encode(user.getPassword()));
     userRepository.save(user);
 
     return userMapper.toUserCreateResponseDto(user);

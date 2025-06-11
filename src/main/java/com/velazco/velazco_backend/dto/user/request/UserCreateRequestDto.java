@@ -1,9 +1,10 @@
 package com.velazco.velazco_backend.dto.user.request;
 
 import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,12 +23,11 @@ public class UserCreateRequestDto {
   private String email;
 
   @NotBlank(message = "La contraseña no puede estar vacía")
-  @Min(value = 6, message = "La contraseña debe tener al menos 6 caracteres")
+  @Size(min = 6, message = "La contraseña debe tener al menos 6 caracteres")
   private String password;
 
-  @NotEmpty(message = "El estado activo no puede estar vacío")
   private Boolean active;
 
-  @NotEmpty(message = "El ID del rol no puede estar vacío")
+  @NotNull(message = "El ID del rol no puede ser nulo")
   private Long roleId;
 }
