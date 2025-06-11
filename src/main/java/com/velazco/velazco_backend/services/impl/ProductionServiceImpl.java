@@ -3,6 +3,7 @@ package com.velazco.velazco_backend.services.impl;
 import com.velazco.velazco_backend.dto.production.request.ProductionCreateRequestDto;
 import com.velazco.velazco_backend.dto.production.request.ProductionUpdateRequestDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionCreateResponseDto;
+import com.velazco.velazco_backend.dto.production.response.ProductionListResponseDto;
 import com.velazco.velazco_backend.entities.Product;
 import com.velazco.velazco_backend.entities.Production;
 import com.velazco.velazco_backend.entities.ProductionDetail;
@@ -17,6 +18,7 @@ import com.velazco.velazco_backend.services.ProductionService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -133,4 +135,10 @@ public class ProductionServiceImpl implements ProductionService {
     return productionMapper.toCreateResponseDto(savedProduction);
   }
 
+  @Override
+  public List<ProductionListResponseDto> getDailyProductions() {
+    List<Production> productions = productionRepository.findProductionsByProductionDate(LocalDate.now());
+
+    return productionMapper.toListResponseDto(productions);
+  }
 }

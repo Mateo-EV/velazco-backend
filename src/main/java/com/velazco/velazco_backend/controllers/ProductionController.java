@@ -3,6 +3,7 @@ package com.velazco.velazco_backend.controllers;
 import com.velazco.velazco_backend.dto.production.request.ProductionCreateRequestDto;
 import com.velazco.velazco_backend.dto.production.request.ProductionUpdateRequestDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionCreateResponseDto;
+import com.velazco.velazco_backend.dto.production.response.ProductionListResponseDto;
 import com.velazco.velazco_backend.entities.User;
 import com.velazco.velazco_backend.services.ProductionService;
 
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api/productions")
@@ -57,4 +59,10 @@ public class ProductionController {
     ProductionCreateResponseDto response = productionService.updateProduction(id, request, user);
     return ResponseEntity.ok(response);
   }
+
+  @GetMapping("/today")
+  public List<ProductionListResponseDto> getDailyProductions() {
+    return productionService.getDailyProductions();
+  }
+
 }
