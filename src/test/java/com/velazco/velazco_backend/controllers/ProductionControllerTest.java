@@ -9,7 +9,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -150,7 +149,7 @@ public class ProductionControllerTest {
                 .build();
 
         ProductionUpdateRequestDto requestDto = ProductionUpdateRequestDto.builder()
-                .productionDate(LocalDate.of(2025, 6, 10))
+                .productionDate(LocalDate.now())
                 .assignedToId(1L)
                 .status(ProductionStatus.EN_PROCESO)
                 .details(List.of(detailDtoRequest))
@@ -200,8 +199,7 @@ public class ProductionControllerTest {
                 .andExpect(jsonPath("$.details[0].product.name").value("Producto A"))
                 .andExpect(jsonPath("$.details[0].requestedQuantity").value(100))
                 .andExpect(jsonPath("$.details[0].producedQuantity").value(0))
-                .andExpect(jsonPath("$.details[0].comments").value("Aumentar la producción del producto 27"))
-                .andDo(print());
+                .andExpect(jsonPath("$.details[0].comments").value("Aumentar la producción del producto 27"));
     }
 
     @Test
