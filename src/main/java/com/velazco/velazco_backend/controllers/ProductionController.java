@@ -1,27 +1,29 @@
 package com.velazco.velazco_backend.controllers;
 
-import com.velazco.velazco_backend.dto.production.request.ProductionCreateRequestDto;
-import com.velazco.velazco_backend.dto.production.request.ProductionUpdateRequestDto;
-import com.velazco.velazco_backend.dto.production.response.ProductionCreateResponseDto;
-import com.velazco.velazco_backend.entities.User;
-import com.velazco.velazco_backend.services.ProductionService;
-
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.velazco.velazco_backend.dto.production.request.ProductionCreateRequestDto;
+import com.velazco.velazco_backend.dto.production.request.ProductionUpdateRequestDto;
+import com.velazco.velazco_backend.dto.production.response.ProductionCreateResponseDto;
+import com.velazco.velazco_backend.dto.production.response.ProductionListResponseDto;
+import com.velazco.velazco_backend.dto.production.response.ProductionUpdateResponseDto;
+import com.velazco.velazco_backend.entities.User;
+import com.velazco.velazco_backend.services.ProductionService;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequestMapping("/api/productions")
@@ -50,11 +52,17 @@ public class ProductionController {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<ProductionCreateResponseDto> updateProduction(
+  public ResponseEntity<ProductionUpdateResponseDto> updateProduction(
       @PathVariable Long id,
       @AuthenticationPrincipal User user,
       @RequestBody @Valid ProductionUpdateRequestDto request) {
-    ProductionCreateResponseDto response = productionService.updateProduction(id, request, user);
+    ProductionUpdateResponseDto response = productionService.updateProduction(id, request, user);
     return ResponseEntity.ok(response);
   }
+
+  @GetMapping("/daily")
+  public List<ProductionListResponseDto> getDailyProductions() {
+    return productionService.getDailyProductions();
+  }
+
 }

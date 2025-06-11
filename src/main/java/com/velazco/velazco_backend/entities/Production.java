@@ -11,6 +11,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -21,7 +22,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "produccion")
+@Table(name = "produccion", indexes = @Index(name = "idx_fecha_produccion", columnList = "fecha_produccion"))
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -46,7 +47,8 @@ public class Production {
   @JoinColumn(name = "asignado_a", nullable = false)
   private User assignedTo;
 
-  @OneToMany(mappedBy = "production", cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE }, orphanRemoval = true)
+  @OneToMany(mappedBy = "production", cascade = { CascadeType.PERSIST, CascadeType.MERGE,
+      CascadeType.REMOVE }, orphanRemoval = true)
   private List<ProductionDetail> details;
 
   public static enum ProductionStatus {

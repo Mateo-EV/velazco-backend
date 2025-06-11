@@ -3,6 +3,8 @@ package com.velazco.velazco_backend.services.impl;
 import com.velazco.velazco_backend.dto.production.request.ProductionCreateRequestDto;
 import com.velazco.velazco_backend.dto.production.request.ProductionUpdateRequestDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionCreateResponseDto;
+import com.velazco.velazco_backend.dto.production.response.ProductionListResponseDto;
+import com.velazco.velazco_backend.dto.production.response.ProductionUpdateResponseDto;
 import com.velazco.velazco_backend.entities.Product;
 import com.velazco.velazco_backend.entities.Production;
 import com.velazco.velazco_backend.entities.ProductionDetail;
@@ -17,6 +19,7 @@ import com.velazco.velazco_backend.services.ProductionService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -83,7 +86,7 @@ public class ProductionServiceImpl implements ProductionService {
   }
 
   @Override
-  public ProductionCreateResponseDto updateProduction(Long id, ProductionUpdateRequestDto dto, User updatedBy) {
+  public ProductionUpdateResponseDto updateProduction(Long id, ProductionUpdateRequestDto dto, User updatedBy) {
     Production existing = productionRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException("Production not found with ID: " + id));
 
@@ -130,7 +133,13 @@ public class ProductionServiceImpl implements ProductionService {
 
     Production savedProduction = productionRepository.save(existing);
 
-    return productionMapper.toCreateResponseDto(savedProduction);
+    return productionMapper.toUpdateResponseDto(savedProduction);
   }
 
+  @Override
+  public List<ProductionListResponseDto> getDailyProductions() {
+    List<Production> productions = productionRepository.findProductionsByProductionDate(LocalDate.now());
+
+    return productionMapper.toListResponseDto(productions);
+  }
 }

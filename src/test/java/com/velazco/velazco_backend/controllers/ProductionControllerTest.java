@@ -1,14 +1,15 @@
 package com.velazco.velazco_backend.controllers;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -24,12 +25,15 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.velazco.velazco_backend.dto.production.request.ProductionCreateRequestDto;
+import com.velazco.velazco_backend.dto.production.request.ProductionUpdateRequestDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionCreateResponseDto;
+import com.velazco.velazco_backend.dto.production.response.ProductionListResponseDto;
+import com.velazco.velazco_backend.dto.production.response.ProductionUpdateResponseDto;
 import com.velazco.velazco_backend.entities.Product;
 import com.velazco.velazco_backend.entities.Production;
+import com.velazco.velazco_backend.entities.Production.ProductionStatus;
 import com.velazco.velazco_backend.entities.ProductionDetail;
 import com.velazco.velazco_backend.entities.User;
-import com.velazco.velazco_backend.entities.Production.ProductionStatus;
 import com.velazco.velazco_backend.mappers.ProductionMapper;
 import com.velazco.velazco_backend.services.ProductionService;
 
@@ -137,35 +141,35 @@ public class ProductionControllerTest {
         mockUser.setId(10L);
         mockUser.setName("administrador");
 
-        ProductionCreateRequestDto.ProductionDetailCreateRequestDto detailDtoRequest = ProductionCreateRequestDto.ProductionDetailCreateRequestDto
+        ProductionUpdateRequestDto.ProductionDetailUpdateRequestDto detailDtoRequest = ProductionUpdateRequestDto.ProductionDetailUpdateRequestDto
                 .builder()
                 .productId(27L)
                 .requestedQuantity(100)
                 .comments("Aumentar la producción del producto 27")
                 .build();
 
-        ProductionCreateRequestDto requestDto = ProductionCreateRequestDto.builder()
-                .productionDate(LocalDate.of(2025, 6, 10))
+        ProductionUpdateRequestDto requestDto = ProductionUpdateRequestDto.builder()
+                .productionDate(LocalDate.now())
                 .assignedToId(1L)
                 .status(ProductionStatus.EN_PROCESO)
                 .details(List.of(detailDtoRequest))
                 .build();
 
-        ProductionCreateResponseDto productionResponse = ProductionCreateResponseDto.builder()
+        ProductionUpdateResponseDto productionResponse = ProductionUpdateResponseDto.builder()
                 .id(productionId)
                 .productionDate(requestDto.getProductionDate())
                 .status(requestDto.getStatus())
-                .assignedBy(ProductionCreateResponseDto.AssignedByProductionCreateResponseDto.builder()
+                .assignedBy(ProductionUpdateResponseDto.AssignedByProductionUpdateResponseDto.builder()
                         .id(mockUser.getId())
                         .name(mockUser.getName())
                         .build())
-                .assignedTo(ProductionCreateResponseDto.AssignedToProductionCreateResponseDto.builder()
+                .assignedTo(ProductionUpdateResponseDto.AssignedToProductionUpdateResponseDto.builder()
                         .id(1L)
                         .name("Mateo")
                         .build())
                 .details(List.of(
-                        ProductionCreateResponseDto.DetailProductionCreateResponseDto.builder()
-                                .product(ProductionCreateResponseDto.ProductProductionCreateResponseDto.builder()
+                        ProductionUpdateResponseDto.DetailProductionUpdateResponseDto.builder()
+                                .product(ProductionUpdateResponseDto.ProductProductionUpdateResponseDto.builder()
                                         .id(27L)
                                         .name("Producto A")
                                         .build())
@@ -175,7 +179,7 @@ public class ProductionControllerTest {
                                 .build()))
                 .build();
 
-        Mockito.when(productionService.updateProduction(eq(productionId), any(), eq(mockUser)))
+        Mockito.when(productionService.updateProduction(eq(productionId), eq(requestDto), eq(mockUser)))
                 .thenReturn(productionResponse);
 
         mockMvc.perform(put("/api/productions/{id}", productionId)
@@ -205,5 +209,52 @@ public class ProductionControllerTest {
 
         mockMvc.perform(delete("/api/productions/1").with(csrf()))
                 .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @WithMockUser
+    void shouldGetDailyProductions() throws Exception {
+        List<ProductionListResponseDto> dailyProductions = List.of(
+                ProductionListResponseDto.builder()
+                        .id(1L)
+                        .productionDate(LocalDate.now())
+                        .status(ProductionStatus.PENDIENTE)
+                        .assignedBy(ProductionListResponseDto.AssignedByProductionListResponseDto.builder()
+                                .id(10L)
+                                .name("administrador")
+                                .build())
+                        .assignedTo(ProductionListResponseDto.AssignedToProductionListResponseDto.builder()
+                                .id(1L)
+                                .name("Mateo")
+                                .build())
+                        .details(List.of(
+                                ProductionListResponseDto.DetailProductionListResponseDto.builder()
+                                        .product(ProductionListResponseDto.ProductProductionListResponseDto.builder()
+                                                .id(27L)
+                                                .name("Producto A")
+                                                .build())
+                                        .requestedQuantity(100)
+                                        .producedQuantity(0)
+                                        .comments("Aumentar la producción del producto 27")
+                                        .build()))
+                        .build());
+
+        Mockito.when(productionService.getDailyProductions()).thenReturn(dailyProductions);
+
+        mockMvc.perform(get("/api/productions/daily").with(csrf())
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(1L))
+                .andExpect(jsonPath("$[0].productionDate").value(LocalDate.now().toString()))
+                .andExpect(jsonPath("$[0].status").value(ProductionStatus.PENDIENTE.name()))
+                .andExpect(jsonPath("$[0].assignedBy.id").value(10L))
+                .andExpect(jsonPath("$[0].assignedBy.name").value("administrador"))
+                .andExpect(jsonPath("$[0].assignedTo.id").value(1L))
+                .andExpect(jsonPath("$[0].assignedTo.name").value("Mateo"))
+                .andExpect(jsonPath("$[0].details[0].product.id").value(27L))
+                .andExpect(jsonPath("$[0].details[0].product.name").value("Producto A"))
+                .andExpect(jsonPath("$[0].details[0].requestedQuantity").value(100))
+                .andExpect(jsonPath("$[0].details[0].producedQuantity").value(0))
+                .andExpect(jsonPath("$[0].details[0].comments").value("Aumentar la producción del producto 27"));
     }
 }
