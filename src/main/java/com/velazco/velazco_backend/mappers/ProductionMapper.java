@@ -8,6 +8,7 @@ import org.mapstruct.Mapping;
 import com.velazco.velazco_backend.dto.production.request.ProductionCreateRequestDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionCreateResponseDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionListResponseDto;
+import com.velazco.velazco_backend.dto.production.response.ProductionUpdateResponseDto;
 import com.velazco.velazco_backend.entities.Production;
 import com.velazco.velazco_backend.entities.ProductionDetail;
 
@@ -26,6 +27,8 @@ public interface ProductionMapper {
   ProductionDetail toEntity(ProductionCreateRequestDto.ProductionDetailCreateRequestDto detailDto);
 
   ProductionCreateResponseDto toCreateResponseDto(Production production);
+
+  ProductionUpdateResponseDto toUpdateResponseDto(Production production);
 
   List<ProductionListResponseDto> toListResponseDto(List<Production> productions);
 }

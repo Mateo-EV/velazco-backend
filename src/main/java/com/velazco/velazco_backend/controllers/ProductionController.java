@@ -18,6 +18,7 @@ import com.velazco.velazco_backend.dto.production.request.ProductionCreateReques
 import com.velazco.velazco_backend.dto.production.request.ProductionUpdateRequestDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionCreateResponseDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionListResponseDto;
+import com.velazco.velazco_backend.dto.production.response.ProductionUpdateResponseDto;
 import com.velazco.velazco_backend.entities.User;
 import com.velazco.velazco_backend.services.ProductionService;
 
@@ -51,11 +52,11 @@ public class ProductionController {
   }
 
   @PutMapping("/{id}")
-  public ResponseEntity<ProductionCreateResponseDto> updateProduction(
+  public ResponseEntity<ProductionUpdateResponseDto> updateProduction(
       @PathVariable Long id,
       @AuthenticationPrincipal User user,
       @RequestBody @Valid ProductionUpdateRequestDto request) {
-    ProductionCreateResponseDto response = productionService.updateProduction(id, request, user);
+    ProductionUpdateResponseDto response = productionService.updateProduction(id, request, user);
     return ResponseEntity.ok(response);
   }
 

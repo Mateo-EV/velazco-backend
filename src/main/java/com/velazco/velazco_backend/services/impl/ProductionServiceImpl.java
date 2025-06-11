@@ -4,6 +4,7 @@ import com.velazco.velazco_backend.dto.production.request.ProductionCreateReques
 import com.velazco.velazco_backend.dto.production.request.ProductionUpdateRequestDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionCreateResponseDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionListResponseDto;
+import com.velazco.velazco_backend.dto.production.response.ProductionUpdateResponseDto;
 import com.velazco.velazco_backend.entities.Product;
 import com.velazco.velazco_backend.entities.Production;
 import com.velazco.velazco_backend.entities.ProductionDetail;
@@ -85,7 +86,7 @@ public class ProductionServiceImpl implements ProductionService {
   }
 
   @Override
-  public ProductionCreateResponseDto updateProduction(Long id, ProductionUpdateRequestDto dto, User updatedBy) {
+  public ProductionUpdateResponseDto updateProduction(Long id, ProductionUpdateRequestDto dto, User updatedBy) {
     Production existing = productionRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException("Production not found with ID: " + id));
 
@@ -132,7 +133,7 @@ public class ProductionServiceImpl implements ProductionService {
 
     Production savedProduction = productionRepository.save(existing);
 
-    return productionMapper.toCreateResponseDto(savedProduction);
+    return productionMapper.toUpdateResponseDto(savedProduction);
   }
 
   @Override
