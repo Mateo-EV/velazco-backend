@@ -6,6 +6,7 @@ import com.velazco.velazco_backend.dto.user.response.UserCreateResponseDto;
 import com.velazco.velazco_backend.dto.user.response.UserUpdateResponseDto;
 import com.velazco.velazco_backend.entities.Role;
 import com.velazco.velazco_backend.entities.User;
+import com.velazco.velazco_backend.exception.GeneralBadRequestException;
 import com.velazco.velazco_backend.mappers.UserMapper;
 import com.velazco.velazco_backend.repositories.RoleRepository;
 import com.velazco.velazco_backend.repositories.UserRepository;
@@ -59,5 +60,17 @@ public class UserServiceImpl implements UserService {
     }
 
     return userMapper.toUserUpdateResponse(userRepository.save(user));
+  }
+
+  @Override
+  public void deleteUser(Long id) {
+    User user = userRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+    try {
+      userRepository.delete(user);
+    } catch (Exception e) {
+      throw new GeneralBadRequestException("No se puede eliminar el usuario porque está asociado a otros registros");
+    }
   }
 }
