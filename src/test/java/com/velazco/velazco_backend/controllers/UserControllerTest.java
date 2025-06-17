@@ -3,6 +3,7 @@ package com.velazco.velazco_backend.controllers;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -18,7 +19,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.velazco.velazco_backend.dto.user.request.UserCreateRequestDto;
+import com.velazco.velazco_backend.dto.user.request.UserUpdateRequestDto;
 import com.velazco.velazco_backend.dto.user.response.UserCreateResponseDto;
+import com.velazco.velazco_backend.dto.user.response.UserUpdateResponseDto;
 import com.velazco.velazco_backend.mappers.UserMapper;
 import com.velazco.velazco_backend.services.UserService;
 
@@ -50,7 +53,8 @@ public class UserControllerTest {
         .roleId(1L)
         .build();
 
-    UserCreateResponseDto.RoleUserCreateResponseDto roleDto = UserCreateResponseDto.RoleUserCreateResponseDto.builder()
+    UserCreateResponseDto.RoleUserCreateResponseDto roleDto = UserCreateResponseDto.RoleUserCreateResponseDto
+        .builder()
         .id(1L)
         .name("Admin")
         .build();
@@ -77,5 +81,47 @@ public class UserControllerTest {
         .andExpect(jsonPath("$.active").value(true))
         .andExpect(jsonPath("$.role.id").value(1L))
         .andExpect(jsonPath("$.role.name").value("Admin"));
+  }
+
+  @Test
+  @WithMockUser
+  void shouldUpdateUser() throws Exception {
+    UserUpdateRequestDto requestDto = UserUpdateRequestDto.builder()
+        .name("Updated User")
+        .email("updated@example.com")
+        .password("newpassword123")
+        .active(false)
+        .roleId(2L)
+        .build();
+
+    UserUpdateResponseDto.RoleUserUpdateResponseDto roleDto = UserUpdateResponseDto.RoleUserUpdateResponseDto
+        .builder()
+        .id(2L)
+        .name("User")
+        .build();
+
+    UserUpdateResponseDto responseDto = UserUpdateResponseDto.builder()
+        .id(1L)
+        .name("Updated User")
+        .email("updated@example.com")
+        .active(false)
+        .role(roleDto)
+        .build();
+
+    Mockito.when(userService.updateUser(eq(1L), eq(requestDto))).thenReturn(responseDto);
+
+    mockMvc.perform(
+        put("/api/users/1")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content(objectMapper.writeValueAsString(requestDto))
+            .with(csrf()))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id").value(1L))
+        .andExpect(jsonPath("$.name").value("Updated User"))
+        .andExpect(jsonPath("$.email").value("updated@example.com"))
+        .andExpect(jsonPath("$.active").value(false))
+        .andExpect(jsonPath("$.role.id").value(2L))
+        .andExpect(jsonPath("$.role.name").value("User"));
   }
 }
