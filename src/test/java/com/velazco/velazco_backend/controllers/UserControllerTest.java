@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -123,5 +124,16 @@ public class UserControllerTest {
         .andExpect(jsonPath("$.active").value(false))
         .andExpect(jsonPath("$.role.id").value(2L))
         .andExpect(jsonPath("$.role.name").value("User"));
+  }
+
+  @Test
+  @WithMockUser
+  void shouldDeleteUser() throws Exception {
+    Mockito.doNothing().when(userService).deleteUser(1L);
+
+    mockMvc.perform(
+        delete("/api/users/1").with(csrf()))
+        .andDo(print())
+        .andExpect(status().isNoContent());
   }
 }
