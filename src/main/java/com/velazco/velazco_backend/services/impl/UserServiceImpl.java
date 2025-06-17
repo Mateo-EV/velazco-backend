@@ -1,7 +1,9 @@
 package com.velazco.velazco_backend.services.impl;
 
 import com.velazco.velazco_backend.dto.user.request.UserCreateRequestDto;
+import com.velazco.velazco_backend.dto.user.request.UserUpdateRequestDto;
 import com.velazco.velazco_backend.dto.user.response.UserCreateResponseDto;
+import com.velazco.velazco_backend.dto.user.response.UserUpdateResponseDto;
 import com.velazco.velazco_backend.entities.Role;
 import com.velazco.velazco_backend.entities.User;
 import com.velazco.velazco_backend.mappers.UserMapper;
@@ -36,6 +38,26 @@ public class UserServiceImpl implements UserService {
     user.setPassword(passwordEncoder.encode(user.getPassword()));
     userRepository.save(user);
 
-    return userMapper.toUserCreateResponseDto(user);
+    return userMapper.toUserCreateResponse(user);
+  }
+
+  @Override
+  public UserUpdateResponseDto updateUser(Long id, UserUpdateRequestDto request) {
+    User existing = userRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+    User user = userMapper.toEntity(request);
+    user.setId(existing.getId());
+
+    Role role = roleRepository.findById(request.getRoleId())
+        .orElseThrow(() -> new EntityNotFoundException("Role not found"));
+
+    user.setRole(role);
+
+    if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+      user.setPassword(passwordEncoder.encode(user.getPassword()));
+    }
+
+    return userMapper.toUserUpdateResponse(userRepository.save(user));
   }
 }
