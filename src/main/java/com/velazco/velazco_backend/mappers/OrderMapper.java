@@ -6,6 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import com.velazco.velazco_backend.dto.order.requests.OrderStartRequestDto;
+import com.velazco.velazco_backend.dto.order.responses.DeliveredOrderResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderConfirmDispatchResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderConfirmSaleResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderListResponseDto;
@@ -40,6 +41,14 @@ public interface OrderMapper {
   @Mapping(target = "order", ignore = true)
   @Mapping(target = "unitPrice", ignore = true)
   OrderDetail toEntity(OrderStartRequestDto.DetailOrderStartRequestDto detailDto);
+
+  @Mapping(target = "attendedBy.id", source = "attendedBy.id")
+  @Mapping(target = "attendedBy.name", source = "attendedBy.name")
+  @Mapping(target = "deliveredBy.id", source = "dispatch.dispatchedBy.id")
+  @Mapping(target = "deliveredBy.name", source = "dispatch.dispatchedBy.name")
+  @Mapping(target = "deliveryDate", source = "dispatch.deliveryDate")
+  @Mapping(target = "details", source = "details")
+  DeliveredOrderResponseDto toDeliveredDto(Order order);
 
   OrderStartResponseDto toStartResponse(Order order);
 

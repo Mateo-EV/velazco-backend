@@ -3,6 +3,7 @@ package com.velazco.velazco_backend.controllers;
 import com.velazco.velazco_backend.dto.PaginatedResponseDto;
 import com.velazco.velazco_backend.dto.order.requests.OrderConfirmSaleRequestDto;
 import com.velazco.velazco_backend.dto.order.requests.OrderStartRequestDto;
+import com.velazco.velazco_backend.dto.order.responses.DeliveredOrderResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderConfirmDispatchResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderConfirmSaleResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderListResponseDto;
@@ -53,6 +54,16 @@ public class OrderController {
     }
 
     return ResponseEntity.ok(orderService.getOrdersByStatus(orderStatus, pageable));
+  }
+
+  @GetMapping("/delivered")
+  public ResponseEntity<PaginatedResponseDto<DeliveredOrderResponseDto>> getDeliveredOrders(
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size) {
+
+    Pageable pageable = PageRequest.of(page, size);
+
+    return ResponseEntity.ok(orderService.getDeliveredOrders(pageable));
   }
 
   @PostMapping("/start")

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.velazco.velazco_backend.dto.PaginatedResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderListResponseDto;
 import com.velazco.velazco_backend.dto.order.requests.OrderStartRequestDto;
+import com.velazco.velazco_backend.dto.order.responses.DeliveredOrderResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderConfirmDispatchResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderConfirmSaleResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderStartResponseDto;
@@ -217,6 +218,22 @@ public class OrderServiceImpl implements OrderService {
 
     return PaginatedResponseDto.<OrderListResponseDto>builder()
         .content(orderMapper.toListResponse(orderPage.getContent()))
+        .currentPage(orderPage.getNumber())
+        .totalItems(orderPage.getTotalElements())
+        .totalPages(orderPage.getTotalPages())
+        .build();
+  }
+
+  @Override
+  public PaginatedResponseDto<DeliveredOrderResponseDto> getDeliveredOrders(Pageable pageable) {
+    Page<Order> orderPage = orderRepository.findByStatus(Order.OrderStatus.ENTREGADO, pageable);
+
+    List<DeliveredOrderResponseDto> dtoList = orderPage.getContent().stream()
+        .map(orderMapper::toDeliveredDto)
+        .toList();
+
+    return PaginatedResponseDto.<DeliveredOrderResponseDto>builder()
+        .content(dtoList)
         .currentPage(orderPage.getNumber())
         .totalItems(orderPage.getTotalElements())
         .totalPages(orderPage.getTotalPages())

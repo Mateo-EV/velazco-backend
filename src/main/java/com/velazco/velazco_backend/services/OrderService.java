@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import com.velazco.velazco_backend.dto.PaginatedResponseDto;
 import com.velazco.velazco_backend.dto.order.requests.OrderStartRequestDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderListResponseDto;
+import com.velazco.velazco_backend.dto.order.responses.DeliveredOrderResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderConfirmDispatchResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderConfirmSaleResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderStartResponseDto;
@@ -30,5 +31,7 @@ public interface OrderService {
       Long orderId,
       String clientName,
       Pageable pageable);
+
+  PaginatedResponseDto<DeliveredOrderResponseDto> getDeliveredOrders(Pageable pageable);
 
 }

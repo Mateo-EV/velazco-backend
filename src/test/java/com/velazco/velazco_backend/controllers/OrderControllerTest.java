@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.velazco.velazco_backend.dto.PaginatedResponseDto;
 import com.velazco.velazco_backend.dto.order.requests.OrderConfirmSaleRequestDto;
 import com.velazco.velazco_backend.dto.order.requests.OrderStartRequestDto;
+import com.velazco.velazco_backend.dto.order.responses.DeliveredOrderResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderConfirmDispatchResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderConfirmSaleResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderListResponseDto;
@@ -311,6 +312,68 @@ class OrderControllerTest {
         .andExpect(jsonPath("$.content[0].clientName").value("John Doe"))
         .andExpect(jsonPath("$.content[0].status").value("PAGADO"))
         .andExpect(jsonPath("$.content[0].attendedBy.name").value("Mateo Velazco"))
+        .andExpect(jsonPath("$.content[0].details[0].product.id").value(1L))
+        .andExpect(jsonPath("$.content[0].details[0].quantity").value(2))
+        .andExpect(jsonPath("$.content[0].details[0].unitPrice").value(10.0))
+        .andExpect(jsonPath("$.currentPage").value(0))
+        .andExpect(jsonPath("$.totalItems").value(1))
+        .andExpect(jsonPath("$.totalPages").value(1));
+  }
+
+  @Test
+  @WithMockUser
+  void shouldGetDeliveredOrdersSuccessfully() throws Exception {
+
+    User attendedByUser = new User();
+    attendedByUser.setId(1L);
+    attendedByUser.setName("Mateo Velazco");
+
+    User deliveredByUser = new User();
+    deliveredByUser.setId(2L);
+    deliveredByUser.setName("Camila Sánchez");
+
+    DeliveredOrderResponseDto.AttendedByDto attendedByDto = new DeliveredOrderResponseDto.AttendedByDto(
+        attendedByUser.getId(), attendedByUser.getName());
+
+    DeliveredOrderResponseDto.DeliveredByDto deliveredByDto = new DeliveredOrderResponseDto.DeliveredByDto(
+        deliveredByUser.getId(), deliveredByUser.getName());
+
+    DeliveredOrderResponseDto.ProductDto productDto = new DeliveredOrderResponseDto.ProductDto(1L, "Producto 1");
+
+    DeliveredOrderResponseDto.OrderDetailDto detailDto = new DeliveredOrderResponseDto.OrderDetailDto(
+        2, BigDecimal.valueOf(10.0), productDto);
+
+    DeliveredOrderResponseDto deliveredOrderDto = DeliveredOrderResponseDto.builder()
+        .id(1L)
+        .date(LocalDateTime.now())
+        .clientName("John Doe")
+        .status(Order.OrderStatus.ENTREGADO.name())
+        .attendedBy(attendedByDto)
+        .deliveredBy(deliveredByDto)
+        .deliveryDate(LocalDateTime.now())
+        .details(List.of(detailDto))
+        .build();
+
+    PaginatedResponseDto<DeliveredOrderResponseDto> paginatedResponse = PaginatedResponseDto
+        .<DeliveredOrderResponseDto>builder()
+        .content(List.of(deliveredOrderDto))
+        .currentPage(0)
+        .totalItems(1)
+        .totalPages(1)
+        .build();
+
+    Mockito.when(orderService.getDeliveredOrders(any(Pageable.class)))
+        .thenReturn(paginatedResponse);
+
+    mockMvc.perform(get("/api/orders/delivered")
+        .param("page", "0")
+        .param("size", "10"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content[0].id").value(1))
+        .andExpect(jsonPath("$.content[0].clientName").value("John Doe"))
+        .andExpect(jsonPath("$.content[0].status").value("ENTREGADO"))
+        .andExpect(jsonPath("$.content[0].attendedBy.name").value("Mateo Velazco"))
+        .andExpect(jsonPath("$.content[0].deliveredBy.name").value("Camila Sánchez"))
         .andExpect(jsonPath("$.content[0].details[0].product.id").value(1L))
         .andExpect(jsonPath("$.content[0].details[0].quantity").value(2))
         .andExpect(jsonPath("$.content[0].details[0].unitPrice").value(10.0))
