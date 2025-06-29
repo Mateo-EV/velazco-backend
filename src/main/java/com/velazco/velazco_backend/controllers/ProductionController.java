@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.velazco.velazco_backend.dto.production.request.ProductionCreateRequestDto;
 import com.velazco.velazco_backend.dto.production.request.ProductionUpdateRequestDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionCreateResponseDto;
+import com.velazco.velazco_backend.dto.production.response.ProductionHistoryResponseDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionListResponseDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionUpdateResponseDto;
 import com.velazco.velazco_backend.entities.User;
@@ -63,6 +64,11 @@ public class ProductionController {
   @GetMapping("/daily")
   public List<ProductionListResponseDto> getDailyProductions() {
     return productionService.getDailyProductions();
+  }
+
+  @GetMapping("/historial")
+  public ResponseEntity<List<ProductionHistoryResponseDto>> getHistorialCompletosEIncompletos() {
+    return ResponseEntity.ok(productionService.getCompletedAndIncompleteOrders());
   }
 
 }

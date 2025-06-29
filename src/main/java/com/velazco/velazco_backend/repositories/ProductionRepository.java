@@ -9,4 +9,7 @@ import com.velazco.velazco_backend.entities.Production;
 public interface ProductionRepository extends JpaRepository<Production, Long> {
 
   List<Production> findProductionsByProductionDate(LocalDate date);
+
+  List<Production> findByStatusIn(List<Production.ProductionStatus> statuses);
+
 }
