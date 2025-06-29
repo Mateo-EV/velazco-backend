@@ -3,6 +3,7 @@ package com.velazco.velazco_backend.services.impl;
 import com.velazco.velazco_backend.dto.production.request.ProductionCreateRequestDto;
 import com.velazco.velazco_backend.dto.production.request.ProductionUpdateRequestDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionCreateResponseDto;
+import com.velazco.velazco_backend.dto.production.response.ProductionHistoryResponseDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionListResponseDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionUpdateResponseDto;
 import com.velazco.velazco_backend.entities.Product;
@@ -41,6 +42,28 @@ public class ProductionServiceImpl implements ProductionService {
     List<Production> productions = productionRepository.findAll();
     return productions.stream()
         .map(productionMapper::toCreateResponseDto)
+        .toList();
+  }
+
+  public List<ProductionHistoryResponseDto> getCompletedAndIncompleteOrders() {
+    List<Production.ProductionStatus> estados = List.of(
+        Production.ProductionStatus.COMPLETO,
+        Production.ProductionStatus.INCOMPLETO);
+
+    List<Production> ordenes = productionRepository.findByStatusIn(estados);
+
+    return ordenes.stream()
+        .map(production -> {
+          ProductionHistoryResponseDto dto = productionMapper.toHistoryDto(production);
+          List<ProductionHistoryResponseDto.ProductDetail> productDetails = production.getDetails().stream()
+              .map(detail -> ProductionHistoryResponseDto.ProductDetail.builder()
+                  .productName(detail.getProduct().getName())
+                  .quantity(detail.getProducedQuantity())
+                  .build())
+              .toList();
+          dto.setProducts(productDetails);
+          return dto;
+        })
         .toList();
   }
 
