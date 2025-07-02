@@ -11,6 +11,7 @@ import com.velazco.velazco_backend.dto.production.response.ProductionCreateRespo
 import com.velazco.velazco_backend.dto.production.response.ProductionDailyResponseDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionHistoryResponseDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionPendingResponseDto;
+import com.velazco.velazco_backend.dto.production.response.ProductionProcessResponseDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionUpdateResponseDto;
 import com.velazco.velazco_backend.entities.Production;
 import com.velazco.velazco_backend.entities.ProductionDetail;
@@ -38,11 +39,11 @@ public interface ProductionMapper {
   @Mapping(target = "products", ignore = true)
   ProductionHistoryResponseDto toHistoryDto(Production production);
 
-@Mapping(source = "product.name", target = "productName")
-@Mapping(source = "producedQuantity", target = "producedQuantity")
-@Mapping(source = "requestedQuantity", target = "requestedQuantity")
-@Mapping(source = "comments", target = "comments")
-ProductionHistoryResponseDto.ProductDetail toProductDetail(ProductionDetail detail);
+  @Mapping(source = "product.name", target = "productName")
+  @Mapping(source = "producedQuantity", target = "producedQuantity")
+  @Mapping(source = "requestedQuantity", target = "requestedQuantity")
+  @Mapping(source = "comments", target = "comments")
+  ProductionHistoryResponseDto.ProductDetail toProductDetail(ProductionDetail detail);
 
   List<ProductionHistoryResponseDto.ProductDetail> toProductDetailList(List<ProductionDetail> details);
 
@@ -61,7 +62,7 @@ ProductionHistoryResponseDto.ProductDetail toProductDetail(ProductionDetail deta
   @Mapping(source = "id", target = "id")
   @Mapping(source = "name", target = "name")
   ProductionDailyResponseDto.AssignedToDto toAssignedToDto(com.velazco.velazco_backend.entities.User user);
-  
+
   ProductionCreateResponseDto toCreateResponseDto(Production production);
 
   ProductionUpdateResponseDto toUpdateResponseDto(Production production);
@@ -82,7 +83,6 @@ ProductionHistoryResponseDto.ProductDetail toProductDetail(ProductionDetail deta
     return String.format("OP-%04d", id);
   }
 
-
   @Mapping(source = "id", target = "id")
   @Mapping(source = "productionDate", target = "productionDate")
   @Mapping(source = "status", target = "status")
@@ -98,6 +98,22 @@ ProductionHistoryResponseDto.ProductDetail toProductDetail(ProductionDetail deta
   @Mapping(source = "producedQuantity", target = "producedQuantity")
   ProductionPendingResponseDto.DetailDto toPendingDetailDto(ProductionDetail detail);
 
+  @Mapping(source = "id", target = "id")
+  @Mapping(source = "productionDate", target = "productionDate")
+  @Mapping(source = "status", target = "status")
+  @Mapping(source = "assignedBy", target = "assignedBy")
+  @Mapping(source = "assignedTo", target = "assignedTo")
+  @Mapping(source = "comments", target = "comments")
+  @Mapping(target = "details", ignore = true)
+  ProductionProcessResponseDto toProcessDto(Production production);
+
+  @Mapping(source = "product.id", target = "product.id")
+  @Mapping(source = "product.name", target = "product.name")
+  @Mapping(source = "requestedQuantity", target = "requestedQuantity")
+  @Mapping(source = "producedQuantity", target = "producedQuantity")
+  ProductionProcessResponseDto.DetailDto toProcessDetailDto(ProductionDetail detail);
+
   List<ProductionPendingResponseDto.DetailDto> toDetailDtoPendingList(List<ProductionDetail> details);
+  List<ProductionProcessResponseDto.DetailDto> toDetailDtoProcessList(List<ProductionDetail> details);
 
 }
