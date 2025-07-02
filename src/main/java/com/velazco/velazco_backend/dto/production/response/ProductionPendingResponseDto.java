@@ -1,3 +1,4 @@
+// ProductionPendingResponseDto.java
 package com.velazco.velazco_backend.dto.production.response;
 
 import java.time.LocalDate;
@@ -5,7 +6,6 @@ import java.util.List;
 
 import com.velazco.velazco_backend.entities.Production.ProductionStatus;
 
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,12 +15,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProductionUpdateResponseDto {
+public class ProductionPendingResponseDto {
+
   @Data
   @NoArgsConstructor
   @AllArgsConstructor
   @Builder
-  public static class AssignedByProductionUpdateResponseDto {
+  public static class AssignedByDto {
     private Long id;
     private String name;
   }
@@ -29,7 +30,7 @@ public class ProductionUpdateResponseDto {
   @NoArgsConstructor
   @AllArgsConstructor
   @Builder
-  public static class AssignedToProductionUpdateResponseDto {
+  public static class AssignedToDto {
     private Long id;
     private String name;
   }
@@ -38,7 +39,7 @@ public class ProductionUpdateResponseDto {
   @NoArgsConstructor
   @AllArgsConstructor
   @Builder
-  public static class ProductProductionUpdateResponseDto {
+  public static class ProductDto {
     private Long id;
     private String name;
   }
@@ -47,21 +48,18 @@ public class ProductionUpdateResponseDto {
   @NoArgsConstructor
   @AllArgsConstructor
   @Builder
-  public static class DetailProductionUpdateResponseDto {
-    private ProductProductionUpdateResponseDto product;
+  public static class DetailDto {
+    private ProductDto product;
     private Integer requestedQuantity;
     private Integer producedQuantity;
-
   }
 
   private Long id;
   private LocalDate productionDate;
   private ProductionStatus status;
-  private AssignedByProductionUpdateResponseDto assignedBy;
-  private AssignedToProductionUpdateResponseDto assignedTo;
-  
-  @Size(max = 1000)
   private String comments;
 
-  private List<DetailProductionUpdateResponseDto> details;
+  private AssignedByDto assignedBy;
+  private AssignedToDto assignedTo;
+  private List<DetailDto> details;
 }

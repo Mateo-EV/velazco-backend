@@ -13,18 +13,20 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class ProductionHistoryResponseDto {
-    private String orderNumber;
-    private LocalDate date;
-    private String responsible;
-    private String status;
-    private List<ProductDetail> products;
+  private String orderNumber;
+  private LocalDate date;
+  private String responsible;
+  private String status;
+  private List<ProductDetail> products;
 
-    @Data
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @Builder
-    public static class ProductDetail {
-        private String productName;
-        private int quantity;
-    }
+  @Data
+  @NoArgsConstructor
+  @AllArgsConstructor
+  @Builder
+  public static class ProductDetail {
+    private String productName;
+    private Integer producedQuantity;
+    private Integer requestedQuantity;
+    private String comments;
+  }
 }

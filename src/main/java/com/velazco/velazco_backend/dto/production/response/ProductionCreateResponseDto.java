@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ProductionCreateResponseDto {
+
   @Data
   @NoArgsConstructor
   @AllArgsConstructor
@@ -50,12 +51,14 @@ public class ProductionCreateResponseDto {
     private ProductProductionCreateResponseDto product;
     private Integer requestedQuantity;
     private Integer producedQuantity;
-    private String comments;
   }
 
   private Long id;
   private LocalDate productionDate;
   private ProductionStatus status;
+
+  private String comments; 
+
   private AssignedByProductionCreateResponseDto assignedBy;
   private AssignedToProductionCreateResponseDto assignedTo;
   private List<DetailProductionCreateResponseDto> details;

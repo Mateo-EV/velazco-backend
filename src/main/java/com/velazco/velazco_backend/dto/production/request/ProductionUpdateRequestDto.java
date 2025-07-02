@@ -36,9 +36,6 @@ public class ProductionUpdateRequestDto {
     @Positive
     @Min(1)
     Integer requestedQuantity;
-
-    @Size(min = 1, max = 500)
-    String comments;
   }
 
   @NotNull
@@ -51,6 +48,9 @@ public class ProductionUpdateRequestDto {
 
   @NotNull
   ProductionStatus status;
+
+  @Size(max = 1000)
+  String comments;
 
   @NotNull
   @Size(min = 1)

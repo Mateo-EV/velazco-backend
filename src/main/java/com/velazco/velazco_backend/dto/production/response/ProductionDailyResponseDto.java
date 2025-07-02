@@ -14,13 +14,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ProductionListResponseDto {
+public class ProductionDailyResponseDto {
 
   @Data
   @NoArgsConstructor
   @AllArgsConstructor
   @Builder
-  public static class AssignedByProductionListResponseDto {
+  public static class AssignedByDto {
     private Long id;
     private String name;
   }
@@ -29,7 +29,7 @@ public class ProductionListResponseDto {
   @NoArgsConstructor
   @AllArgsConstructor
   @Builder
-  public static class AssignedToProductionListResponseDto {
+  public static class AssignedToDto {
     private Long id;
     private String name;
   }
@@ -38,7 +38,7 @@ public class ProductionListResponseDto {
   @NoArgsConstructor
   @AllArgsConstructor
   @Builder
-  public static class ProductProductionListResponseDto {
+  public static class ProductDto {
     private Long id;
     private String name;
   }
@@ -47,17 +47,17 @@ public class ProductionListResponseDto {
   @NoArgsConstructor
   @AllArgsConstructor
   @Builder
-  public static class DetailProductionListResponseDto {
-    private ProductProductionListResponseDto product;
+  public static class DetailDto {
+    private ProductDto product;
     private Integer requestedQuantity;
     private Integer producedQuantity;
-    private String comments;
   }
 
   private Long id;
   private LocalDate productionDate;
   private ProductionStatus status;
-  private AssignedByProductionListResponseDto assignedBy;
-  private AssignedToProductionListResponseDto assignedTo;
-  private List<DetailProductionListResponseDto> details;
+  private AssignedByDto assignedBy;
+  private AssignedToDto assignedTo;
+  private String comments;
+  private List<DetailDto> details;
 }
