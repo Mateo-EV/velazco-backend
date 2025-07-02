@@ -3,15 +3,19 @@ package com.velazco.velazco_backend.controllers;
 import com.velazco.velazco_backend.dto.user.request.UserCreateRequestDto;
 import com.velazco.velazco_backend.dto.user.request.UserUpdateRequestDto;
 import com.velazco.velazco_backend.dto.user.response.UserCreateResponseDto;
+import com.velazco.velazco_backend.dto.user.response.UserListResponseDto;
 import com.velazco.velazco_backend.dto.user.response.UserUpdateResponseDto;
 import com.velazco.velazco_backend.services.UserService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -24,6 +28,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class UserController {
   private final UserService userService;
+
+  @GetMapping
+  public ResponseEntity<List<UserListResponseDto>> getAllUsers() {
+    List<UserListResponseDto> users = userService.getAllUsers();
+    return ResponseEntity.ok(users);
+  }
 
   @PostMapping
   ResponseEntity<UserCreateResponseDto> createUser(@Valid @RequestBody UserCreateRequestDto request) {

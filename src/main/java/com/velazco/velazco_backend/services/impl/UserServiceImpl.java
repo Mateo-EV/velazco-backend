@@ -3,6 +3,7 @@ package com.velazco.velazco_backend.services.impl;
 import com.velazco.velazco_backend.dto.user.request.UserCreateRequestDto;
 import com.velazco.velazco_backend.dto.user.request.UserUpdateRequestDto;
 import com.velazco.velazco_backend.dto.user.response.UserCreateResponseDto;
+import com.velazco.velazco_backend.dto.user.response.UserListResponseDto;
 import com.velazco.velazco_backend.dto.user.response.UserUpdateResponseDto;
 import com.velazco.velazco_backend.entities.Role;
 import com.velazco.velazco_backend.entities.User;
@@ -14,6 +15,8 @@ import com.velazco.velazco_backend.services.UserService;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,6 +30,12 @@ public class UserServiceImpl implements UserService {
   private final UserMapper userMapper;
 
   private final PasswordEncoder passwordEncoder;
+
+  @Override
+  public List<UserListResponseDto> getAllUsers() {
+    List<User> users = userRepository.findAll();
+    return userMapper.toUserListResponseDtoList(users);
+  }
 
   @Override
   public UserCreateResponseDto createUser(UserCreateRequestDto request) {
