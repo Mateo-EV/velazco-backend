@@ -1,16 +1,29 @@
 package com.velazco.velazco_backend.mappers;
 
+import java.util.List;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import com.velazco.velazco_backend.dto.profile.response.ProfileDto;
 import com.velazco.velazco_backend.dto.user.request.UserCreateRequestDto;
 import com.velazco.velazco_backend.dto.user.request.UserUpdateRequestDto;
 import com.velazco.velazco_backend.dto.user.response.UserCreateResponseDto;
+import com.velazco.velazco_backend.dto.user.response.UserListResponseDto;
 import com.velazco.velazco_backend.dto.user.response.UserUpdateResponseDto;
 import com.velazco.velazco_backend.entities.User;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
+
+  List<UserListResponseDto> toUserListResponseDtoList(List<User> users);
+
+  @Mapping(target = "role", source = "role.name")
+  UserListResponseDto toUserListResponseDto(User user);
+
+  @Mapping(target = "role", source = "role.name")
+  ProfileDto toProfileDto(User user);
+
   @Mapping(target = "id", ignore = true)
   @Mapping(target = "sales", ignore = true)
   @Mapping(target = "attendedOrders", ignore = true)
