@@ -9,6 +9,7 @@ import com.velazco.velazco_backend.dto.production.response.ProductionDailyRespon
 import com.velazco.velazco_backend.dto.production.response.ProductionFinalizeResponseDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionHistoryResponseDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionPendingResponseDto;
+import com.velazco.velazco_backend.dto.production.response.ProductionProcessResponseDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionStatusUpdateResponseDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionUpdateResponseDto;
 import com.velazco.velazco_backend.entities.Product;
@@ -55,6 +56,18 @@ public class ProductionServiceImpl implements ProductionService {
       dto.setDetails(productionMapper.toDetailDtoPendingList(production.getDetails()));
       return dto;
     }).toList();
+  }
+
+  @Override
+  public List<ProductionProcessResponseDto> getProductionsInProcess() {
+    List<Production> inProcess = productionRepository.findByStatus(ProductionStatus.EN_PROCESO);
+    return inProcess.stream()
+        .map(production -> {
+          ProductionProcessResponseDto dto = productionMapper.toProcessDto(production);
+          dto.setDetails(productionMapper.toDetailDtoProcessList(production.getDetails()));
+          return dto;
+        })
+        .toList();
   }
 
   public List<ProductionHistoryResponseDto> getCompletedAndIncompleteOrders() {

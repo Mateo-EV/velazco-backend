@@ -24,6 +24,7 @@ import com.velazco.velazco_backend.dto.production.response.ProductionDailyRespon
 import com.velazco.velazco_backend.dto.production.response.ProductionFinalizeResponseDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionHistoryResponseDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionPendingResponseDto;
+import com.velazco.velazco_backend.dto.production.response.ProductionProcessResponseDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionStatusUpdateResponseDto;
 import com.velazco.velazco_backend.dto.production.response.ProductionUpdateResponseDto;
 import com.velazco.velazco_backend.entities.User;
@@ -41,6 +42,12 @@ public class ProductionController {
   @GetMapping("/pending")
   public ResponseEntity<List<ProductionPendingResponseDto>> getPendingProductions() {
     List<ProductionPendingResponseDto> response = productionService.getPendingProductions();
+    return ResponseEntity.ok(response);
+  }
+
+  @GetMapping("/in-process")
+  public ResponseEntity<List<ProductionProcessResponseDto>> getProductionsInProcess() {
+    List<ProductionProcessResponseDto> response = productionService.getProductionsInProcess();
     return ResponseEntity.ok(response);
   }
 
