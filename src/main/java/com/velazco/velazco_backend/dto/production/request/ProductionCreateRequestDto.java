@@ -16,12 +16,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class ProductionCreateRequestDto {
+
   @Data
   @NoArgsConstructor
   @AllArgsConstructor
@@ -35,9 +35,6 @@ public class ProductionCreateRequestDto {
     @Positive
     @Min(1)
     Integer requestedQuantity;
-
-    @Size(min = 1, max = 500)
-    String comments;
   }
 
   @NotNull
@@ -50,6 +47,9 @@ public class ProductionCreateRequestDto {
 
   @NotNull
   ProductionStatus status;
+
+  @Size(max = 500)
+  private String comments; 
 
   @NotNull
   @Size(min = 1)

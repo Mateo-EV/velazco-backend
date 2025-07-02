@@ -47,6 +47,9 @@ public class Production {
   @JoinColumn(name = "asignado_a", nullable = false)
   private User assignedTo;
 
+  @Column(name = "comentarios", columnDefinition = "TEXT")
+  private String comments;
+
   @OneToMany(mappedBy = "production", cascade = { CascadeType.PERSIST, CascadeType.MERGE,
       CascadeType.REMOVE }, orphanRemoval = true)
   private List<ProductionDetail> details;
