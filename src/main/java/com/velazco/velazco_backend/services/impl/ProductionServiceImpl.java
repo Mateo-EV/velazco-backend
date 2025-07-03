@@ -89,11 +89,6 @@ public class ProductionServiceImpl implements ProductionService {
   @Override
   public ProductionCreateResponseDto createProduction(ProductionCreateRequestDto request, User assignedBy) {
     LocalDate requestedDate = request.getProductionDate();
-    LocalDate today = LocalDate.now();
-
-    if (requestedDate.isBefore(today)) {
-      throw new IllegalArgumentException("No se puede crear una producción en una fecha pasada.");
-    }
 
     boolean existsOnSameDate = productionRepository.existsByProductionDate(requestedDate);
     if (existsOnSameDate) {
