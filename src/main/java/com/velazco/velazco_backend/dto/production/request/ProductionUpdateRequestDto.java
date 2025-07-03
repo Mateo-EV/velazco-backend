@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.velazco.velazco_backend.entities.Production.ProductionStatus;
+import com.velazco.velazco_backend.validation.FutureOrPresentPeruDate;
 import com.velazco.velazco_backend.validation.UniqueField;
 
 import jakarta.validation.Valid;
@@ -39,7 +40,7 @@ public class ProductionUpdateRequestDto {
   }
 
   @NotNull
-  @FutureOrPresent
+  @FutureOrPresentPeruDate
   LocalDate productionDate;
 
   @NotNull
