@@ -196,7 +196,7 @@ public class ProductionServiceImpl implements ProductionService {
 
   @Override
   @Transactional
-  public ProductionStatusUpdateResponseDto cambiarEstadoPendienteAEnProceso(Long id,
+  public ProductionStatusUpdateResponseDto changePendingToInProcess(Long id,
       ProductionStatusUpdateRequestDto dto) {
     Production production = productionRepository.findById(id)
         .orElseThrow(() -> new EntityNotFoundException("Orden de producción no encontrada"));
@@ -222,7 +222,7 @@ public class ProductionServiceImpl implements ProductionService {
 
   @Override
   @Transactional
-  public ProductionFinalizeResponseDto finalizarProduccion(Long productionId, ProductionFinalizeRequestDto request) {
+  public ProductionFinalizeResponseDto finalizeProduction(Long productionId, ProductionFinalizeRequestDto request) {
     Production production = productionRepository.findById(productionId)
         .orElseThrow(() -> new EntityNotFoundException("Producción no encontrada"));
 

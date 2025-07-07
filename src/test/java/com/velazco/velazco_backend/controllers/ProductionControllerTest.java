@@ -98,7 +98,7 @@ public class ProductionControllerTest {
         .productos(List.of(result))
         .build();
 
-    Mockito.when(productionService.finalizarProduccion(eq(productionId), eq(request))).thenReturn(response);
+    Mockito.when(productionService.finalizeProduction(eq(productionId), eq(request))).thenReturn(response);
 
     mockMvc.perform(patch("/api/productions/{id}/finalizar", productionId)
         .with(csrf())

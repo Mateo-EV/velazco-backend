@@ -17,23 +17,21 @@ import com.velazco.velazco_backend.dto.production.response.ProductionUpdateRespo
 import com.velazco.velazco_backend.entities.User;
 
 public interface ProductionService {
-  List<ProductionPendingResponseDto> getPendingProductions();
+    List<ProductionPendingResponseDto> getPendingProductions();
 
-  List<ProductionProcessResponseDto> getProductionsInProcess();
+    List<ProductionProcessResponseDto> getProductionsInProcess();
 
-  ProductionCreateResponseDto createProduction(ProductionCreateRequestDto request, User assignedBy);
+    ProductionCreateResponseDto createProduction(ProductionCreateRequestDto request, User assignedBy);
 
-  void deleteProductionById(Long productionId);
+    void deleteProductionById(Long productionId);
 
-  ProductionUpdateResponseDto updateProduction(Long productionId, ProductionUpdateRequestDto request,
-      User updatedBy);
+    ProductionUpdateResponseDto updateProduction(Long productionId, ProductionUpdateRequestDto request, User updatedBy);
 
-  List<ProductionDailyResponseDto> getDailyProductions();
+    List<ProductionDailyResponseDto> getDailyProductions();
 
-  List<ProductionHistoryResponseDto> getCompletedAndIncompleteOrders();
+    List<ProductionHistoryResponseDto> getCompletedAndIncompleteOrders();
 
-  ProductionStatusUpdateResponseDto cambiarEstadoPendienteAEnProceso(Long id, ProductionStatusUpdateRequestDto dto);
+    ProductionStatusUpdateResponseDto changePendingToInProcess(Long id, ProductionStatusUpdateRequestDto request);
 
-  ProductionFinalizeResponseDto finalizarProduccion(Long productionId, ProductionFinalizeRequestDto request);
-
+    ProductionFinalizeResponseDto finalizeProduction(Long productionId, ProductionFinalizeRequestDto request);
 }

@@ -79,24 +79,24 @@ public class ProductionController {
     return productionService.getDailyProductions();
   }
 
-  @GetMapping("/historial")
-  public ResponseEntity<List<ProductionHistoryResponseDto>> getHistorialCompletosEIncompletos() {
+  @GetMapping("/history")
+  public ResponseEntity<List<ProductionHistoryResponseDto>> getCompleteAndIncompleteHistory() {
     return ResponseEntity.ok(productionService.getCompletedAndIncompleteOrders());
   }
 
   @PatchMapping("/{id}/status")
-  public ResponseEntity<ProductionStatusUpdateResponseDto> actualizarEstadoProduccion(
+  public ResponseEntity<ProductionStatusUpdateResponseDto> updateProductionStatus(
       @PathVariable Long id,
       @RequestBody ProductionStatusUpdateRequestDto dto) {
-    ProductionStatusUpdateResponseDto response = productionService.cambiarEstadoPendienteAEnProceso(id, dto);
+    ProductionStatusUpdateResponseDto response = productionService.changePendingToInProcess(id, dto);
     return ResponseEntity.ok(response);
   }
 
-  @PatchMapping("/{id}/finalizar")
-  public ResponseEntity<ProductionFinalizeResponseDto> finalizarProduccion(
+  @PatchMapping("/{id}/finalize")
+  public ResponseEntity<ProductionFinalizeResponseDto> finalizeProduction(
       @PathVariable Long id,
       @RequestBody @Valid ProductionFinalizeRequestDto request) {
-    ProductionFinalizeResponseDto response = productionService.finalizarProduccion(id, request);
+    ProductionFinalizeResponseDto response = productionService.finalizeProduction(id, request);
     return ResponseEntity.ok(response);
   }
 
