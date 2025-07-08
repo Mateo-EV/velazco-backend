@@ -2,6 +2,7 @@ package com.velazco.velazco_backend.dto.order.requests;
 
 import java.util.List;
 
+import com.velazco.velazco_backend.validation.ProductionOnly;
 import com.velazco.velazco_backend.validation.QuantityAvailable;
 import com.velazco.velazco_backend.validation.UniqueField;
 
@@ -44,7 +45,7 @@ public class OrderStartRequestDto {
 
   @NotNull(message = "La lista de detalles no puede ser nula.")
   @Size(min = 1, message = "Debe haber al menos un detalle en la orden.")
-  @UniqueField(fieldName = "productId")
+  @UniqueField(fieldName = "productId", groups = ProductionOnly.class)
   private List<@Valid DetailOrderStartRequestDto> details;
 
 }
