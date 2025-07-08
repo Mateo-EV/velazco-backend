@@ -11,7 +11,6 @@ import com.velazco.velazco_backend.dto.order.responses.OrderStartResponseDto;
 import com.velazco.velazco_backend.entities.Order;
 import com.velazco.velazco_backend.entities.User;
 import com.velazco.velazco_backend.services.OrderService;
-import com.velazco.velazco_backend.validation.ProductionOnly;
 
 import jakarta.validation.Valid;
 
@@ -22,7 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.data.domain.PageRequest;
@@ -68,11 +66,11 @@ public class OrderController {
     return ResponseEntity.ok(orderService.getDeliveredOrders(pageable));
   }
 
-@Validated(ProductionOnly.class)
-@PostMapping("/start")
-public ResponseEntity<OrderStartResponseDto> startOrder(
-    @AuthenticationPrincipal User user,
-    @RequestBody OrderStartRequestDto orderRequest) {
+  @PostMapping("/start")
+  public ResponseEntity<OrderStartResponseDto> startOrder(
+      @AuthenticationPrincipal User user,
+      @Valid @RequestBody OrderStartRequestDto orderRequest) {
+
     OrderStartResponseDto responseDto = orderService.startOrder(user, orderRequest);
 
     return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
