@@ -98,31 +98,10 @@ public class OrderController {
 
   }
 
-  @PutMapping("/{orderId}/cancel")
-  public ResponseEntity<Void> cancelOrder(@PathVariable Long orderId) {
-    // Check if the order exists
-    // Order order = orderService.getOrderById(orderId);
-    orderService.cancelOrder(orderId);
-
+  @PutMapping("/{id}/cancel")
+  public ResponseEntity<Void> cancelOrder(@PathVariable Long id) {
+    orderService.cancelOrder(id);
     return ResponseEntity.noContent().build();
   }
-
-  // @GetMapping("/filter")
-  // public ResponseEntity<PaginatedResponseDto<OrderListResponseDto>>
-  // filterOrders(
-  // @RequestParam String status,
-  // @RequestParam(required = false) Long orderId,
-  // @RequestParam(required = false) String clientName,
-  // @RequestParam(defaultValue = "0") int page,
-  // @RequestParam(defaultValue = "10") int size) {
-
-  // Pageable pageable = PageRequest.of(page, size);
-
-  // PaginatedResponseDto<OrderListResponseDto> response =
-  // orderService.filterOrders(status, orderId, clientName,
-  // pageable);
-
-  // return ResponseEntity.ok(response);
-  // }
 
 }

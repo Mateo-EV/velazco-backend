@@ -80,4 +80,5 @@ public class GlobalExceptionHandler {
         request.getDescription(false).replace("uri=", ""));
     return new ResponseEntity<>(error, status);
   }
+  
 }

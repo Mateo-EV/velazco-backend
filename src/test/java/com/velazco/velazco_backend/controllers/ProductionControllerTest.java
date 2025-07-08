@@ -5,6 +5,7 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.velazco.velazco_backend.exception.GlobalExceptionHandler;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -18,11 +19,14 @@ import com.velazco.velazco_backend.entities.User;
 import com.velazco.velazco_backend.entities.Production.ProductionStatus;
 import com.velazco.velazco_backend.services.ProductionService;
 import com.velazco.velazco_backend.mappers.ProductionMapper;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -30,6 +34,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(ProductionController.class)
+@Import(GlobalExceptionHandler.class)
 @ActiveProfiles("test")
 public class ProductionControllerTest {
 
@@ -44,6 +49,11 @@ public class ProductionControllerTest {
 
   @Autowired
   private ObjectMapper objectMapper;
+
+  @BeforeEach
+  void setup() {
+    objectMapper.findAndRegisterModules(); // Para que entienda LocalDate
+  }
 
   @Test
   @WithMockUser
@@ -64,7 +74,7 @@ public class ProductionControllerTest {
 
     Mockito.when(productionService.getCompletedAndIncompleteOrders()).thenReturn(historial);
 
-    mockMvc.perform(get("/api/productions/historial").with(csrf()))
+    mockMvc.perform(get("/api/productions/history").with(csrf()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$[0].orderNumber").value("OP-0044"))
         .andExpect(jsonPath("$[0].date").value("2023-04-24"))
@@ -79,14 +89,18 @@ public class ProductionControllerTest {
   void shouldFinalizeProduction() throws Exception {
     Long productionId = 1L;
 
-    ProductionFinalizeRequestDto request = new ProductionFinalizeRequestDto();
+    // DTO válido
     ProductionFinalizeRequestDto.ProductResultDto productDto = new ProductionFinalizeRequestDto.ProductResultDto();
-    productDto.setProductId(1L);
-    productDto.setProducedQuantity(80);
+    productDto.setProductId(1L); // ✔️ requerido
+    productDto.setProducedQuantity(80); // ✔️ requerido y válido
     productDto.setMotivoIncompleto("Faltó materia prima");
-    request.setProductos(List.of(productDto));
 
-    ProductionFinalizeResponseDto.ProductResult result = ProductionFinalizeResponseDto.ProductResult.builder()
+    ProductionFinalizeRequestDto request = new ProductionFinalizeRequestDto();
+    request.setProductos(List.of(productDto)); // ✔️ requerido
+
+    // Respuesta simulada
+    ProductionFinalizeResponseDto.ProductResult result = ProductionFinalizeResponseDto.ProductResult
+        .builder()
         .productId(1L)
         .cantidadProducida(80)
         .motivo("Faltó materia prima")
@@ -98,12 +112,16 @@ public class ProductionControllerTest {
         .productos(List.of(result))
         .build();
 
-    Mockito.when(productionService.finalizarProduccion(eq(productionId), eq(request))).thenReturn(response);
+    // Mock del servicio
+    Mockito.when(productionService.finalizeProduction(eq(productionId), eq(request)))
+        .thenReturn(response);
 
-    mockMvc.perform(patch("/api/productions/{id}/finalizar", productionId)
+    // Ejecución del test
+    mockMvc.perform(patch("/api/productions/{id}/finalize", productionId) // ✅ corregido: /finalize
         .with(csrf())
         .contentType(MediaType.APPLICATION_JSON)
         .content(objectMapper.writeValueAsString(request)))
+        .andDo(print()) // te muestra en consola request/response
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.productionId").value(productionId))
         .andExpect(jsonPath("$.estadoFinal").value("INCOMPLETO"))
@@ -142,7 +160,8 @@ public class ProductionControllerTest {
             ProductionCreateResponseDto.DetailProductionCreateResponseDto.builder()
                 .requestedQuantity(50)
                 .producedQuantity(0)
-                .product(ProductionCreateResponseDto.ProductProductionCreateResponseDto.builder()
+                .product(ProductionCreateResponseDto.ProductProductionCreateResponseDto
+                    .builder()
                     .id(1L).name("Producto 1").build())
                 .build()))
         .build();
@@ -192,7 +211,8 @@ public class ProductionControllerTest {
             ProductionUpdateResponseDto.DetailProductionUpdateResponseDto.builder()
                 .requestedQuantity(100)
                 .producedQuantity(0)
-                .product(ProductionUpdateResponseDto.ProductProductionUpdateResponseDto.builder()
+                .product(ProductionUpdateResponseDto.ProductProductionUpdateResponseDto
+                    .builder()
                     .id(1L).name("Producto X").build())
                 .build()))
         .build();
@@ -229,11 +249,14 @@ public class ProductionControllerTest {
             .id(1L)
             .productionDate(LocalDate.now())
             .status(ProductionStatus.PENDIENTE)
-            .assignedBy(ProductionDailyResponseDto.AssignedByDto.builder().id(1L).name("Admin").build())
-            .assignedTo(ProductionDailyResponseDto.AssignedToDto.builder().id(2L).name("Mateo").build())
+            .assignedBy(ProductionDailyResponseDto.AssignedByDto.builder().id(1L)
+                .name("Admin").build())
+            .assignedTo(ProductionDailyResponseDto.AssignedToDto.builder().id(2L)
+                .name("Mateo").build())
             .details(List.of(
                 ProductionDailyResponseDto.DetailDto.builder()
-                    .product(ProductionDailyResponseDto.ProductDto.builder()
+                    .product(ProductionDailyResponseDto.ProductDto
+                        .builder()
                         .id(1L)
                         .name("Producto A")
                         .build())

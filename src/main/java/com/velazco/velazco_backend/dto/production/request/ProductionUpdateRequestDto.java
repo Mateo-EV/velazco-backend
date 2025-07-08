@@ -8,7 +8,6 @@ import com.velazco.velazco_backend.validation.FutureOrPresentPeruDate;
 import com.velazco.velazco_backend.validation.UniqueField;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
