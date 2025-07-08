@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.velazco.velazco_backend.dto.PaginatedResponseDto;
 import com.velazco.velazco_backend.dto.order.requests.OrderConfirmSaleRequestDto;
 import com.velazco.velazco_backend.dto.order.requests.OrderStartRequestDto;
+import com.velazco.velazco_backend.dto.order.responses.DailySaleResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.DeliveredOrderResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderConfirmDispatchResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderConfirmSaleResponseDto;
@@ -28,6 +29,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -344,6 +346,47 @@ class OrderControllerTest {
         .andExpect(jsonPath("$.currentPage").value(0))
         .andExpect(jsonPath("$.totalItems").value(1))
         .andExpect(jsonPath("$.totalPages").value(1));
+  }
+
+  @Test
+  @WithMockUser
+  void shouldGetDailySalesDetailedSuccessfully() throws Exception {
+
+    DailySaleResponseDto.ProductSold productSold1 = DailySaleResponseDto.ProductSold.builder()
+        .productName("Pan francés")
+        .quantitySold(10)
+        .unitPrice(BigDecimal.valueOf(1.50))
+        .subtotal(BigDecimal.valueOf(15.00))
+        .build();
+
+    DailySaleResponseDto.ProductSold productSold2 = DailySaleResponseDto.ProductSold.builder()
+        .productName("Pastel de chocolate")
+        .quantitySold(2)
+        .unitPrice(BigDecimal.valueOf(25.00))
+        .subtotal(BigDecimal.valueOf(50.00))
+        .build();
+
+    DailySaleResponseDto dailySale = DailySaleResponseDto.builder()
+        .date(LocalDate.now())
+        .totalSales(BigDecimal.valueOf(65.00))
+        .products(List.of(productSold1, productSold2))
+        .build();
+
+    Mockito.when(orderService.getDailySalesDetailed())
+        .thenReturn(List.of(dailySale));
+
+    mockMvc.perform(get("/api/orders/daily-sales/details"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].date").value(LocalDate.now().toString()))
+        .andExpect(jsonPath("$[0].totalSales").value(65.00))
+        .andExpect(jsonPath("$[0].products[0].productName").value("Pan francés"))
+        .andExpect(jsonPath("$[0].products[0].quantitySold").value(10))
+        .andExpect(jsonPath("$[0].products[0].unitPrice").value(1.50))
+        .andExpect(jsonPath("$[0].products[0].subtotal").value(15.00))
+        .andExpect(jsonPath("$[0].products[1].productName").value("Pastel de chocolate"))
+        .andExpect(jsonPath("$[0].products[1].quantitySold").value(2))
+        .andExpect(jsonPath("$[0].products[1].unitPrice").value(25.00))
+        .andExpect(jsonPath("$[0].products[1].subtotal").value(50.00));
   }
 
 }
