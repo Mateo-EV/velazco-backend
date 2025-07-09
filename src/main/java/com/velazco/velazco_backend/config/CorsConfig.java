@@ -15,11 +15,14 @@ public class CorsConfig {
   @Value("${frontend.url}")
   private String frontendUrl;
 
+  @Value("${base.url}")
+  private String baseUrl;
+
   @Bean
   CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
 
-    config.setAllowedOriginPatterns(List.of("http://localhost:4200", frontendUrl));
+    config.setAllowedOriginPatterns(List.of("http://localhost:4200", frontendUrl, baseUrl));
     config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
     config.setAllowedHeaders(List.of("*"));
     config.setAllowCredentials(true);
