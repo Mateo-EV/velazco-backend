@@ -3,6 +3,7 @@ package com.velazco.velazco_backend.controllers;
 import com.velazco.velazco_backend.dto.PaginatedResponseDto;
 import com.velazco.velazco_backend.dto.order.requests.OrderConfirmSaleRequestDto;
 import com.velazco.velazco_backend.dto.order.requests.OrderStartRequestDto;
+import com.velazco.velazco_backend.dto.order.responses.DailySaleResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.DeliveredOrderResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderConfirmDispatchResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderConfirmSaleResponseDto;
@@ -23,6 +24,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+
+import java.util.List;
+
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -102,6 +106,11 @@ public class OrderController {
   public ResponseEntity<Void> cancelOrder(@PathVariable Long id) {
     orderService.cancelOrder(id);
     return ResponseEntity.noContent().build();
+  }
+
+  @GetMapping("/daily-sales/details")
+  public ResponseEntity<List<DailySaleResponseDto>> getDailySalesDetailed() {
+    return ResponseEntity.ok(orderService.getDailySalesDetailed());
   }
 
 }

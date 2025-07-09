@@ -1,6 +1,7 @@
 package com.velazco.velazco_backend.services.impl;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.velazco.velazco_backend.dto.PaginatedResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderListResponseDto;
 import com.velazco.velazco_backend.dto.order.requests.OrderStartRequestDto;
+import com.velazco.velazco_backend.dto.order.responses.DailySaleResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.DeliveredOrderResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderConfirmDispatchResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderConfirmSaleResponseDto;
@@ -238,6 +240,37 @@ public class OrderServiceImpl implements OrderService {
         .totalItems(orderPage.getTotalElements())
         .totalPages(orderPage.getTotalPages())
         .build();
+  }
+
+  @Override
+  public List<DailySaleResponseDto> getDailySalesDetailed() {
+    List<Object[]> rawResults = orderRepository.findDetailedDeliveredSales();
+
+    Map<LocalDate, List<DailySaleResponseDto.ProductSold>> groupedByDate = rawResults.stream()
+        .collect(Collectors.groupingBy(
+            row -> ((java.sql.Date) row[0]).toLocalDate(),
+            Collectors.mapping(row -> DailySaleResponseDto.ProductSold.builder()
+                .productName((String) row[1])
+                .quantitySold((Integer) row[2])
+                .unitPrice((BigDecimal) row[3])
+                .subtotal((BigDecimal) row[4])
+                .build(),
+                Collectors.toList())));
+
+    return groupedByDate.entrySet().stream()
+        .map(entry -> {
+          BigDecimal total = entry.getValue().stream()
+              .map(DailySaleResponseDto.ProductSold::getSubtotal)
+              .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+          return DailySaleResponseDto.builder()
+              .date(entry.getKey())
+              .totalSales(total)
+              .products(entry.getValue())
+              .build();
+        })
+        .sorted((a, b) -> b.getDate().compareTo(a.getDate()))
+        .toList();
   }
 
 }
