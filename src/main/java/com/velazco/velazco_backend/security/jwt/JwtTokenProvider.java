@@ -16,7 +16,7 @@ import jakarta.annotation.PostConstruct;
 @Component
 @ConditionalOnProperty(name = "app.security.jwt.enabled", havingValue = "true", matchIfMissing = true)
 public class JwtTokenProvider {
-  private static final long EXPIRATION_MILLIS = 3600000;
+  private static final long EXPIRATION_MILLIS = 3600000; // 1 hour
 
   @Value("${jwt.secret}")
   private String jwtSecret;

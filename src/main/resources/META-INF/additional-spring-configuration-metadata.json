@@ -14,6 +14,11 @@
       "name": "app.security.jwt.enabled",
       "type": "java.lang.String",
       "description": "Enable JWT"
+    },
+    {
+      "name": "frontend.url",
+      "type": "java.lang.String",
+      "description": "Frontend URL for CORS configuration"
     }
   ]
 }
