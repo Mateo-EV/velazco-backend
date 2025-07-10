@@ -61,6 +61,9 @@ public class User implements UserDetails {
   @OneToMany(mappedBy = "assignedTo")
   private List<Production> responsibleProductions;
 
+  @OneToMany(mappedBy = "user")
+  private List<RefreshToken> refreshTokens;
+
   @Override
   public String getUsername() {
     return email;

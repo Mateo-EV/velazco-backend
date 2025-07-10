@@ -1,6 +1,7 @@
 package com.velazco.velazco_backend.security.jwt;
 
 import java.security.Key;
+import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Date;
 
@@ -16,22 +17,26 @@ import jakarta.annotation.PostConstruct;
 @Component
 @ConditionalOnProperty(name = "app.security.jwt.enabled", havingValue = "true", matchIfMissing = true)
 public class JwtTokenProvider {
-  private static final long EXPIRATION_MILLIS = 3600000; // 1 hour
+
+  private static final long ACCESS_TOKEN_EXPIRATION_MILLIS = 3600000; // 1 hour
+  private static final long REFRESH_TOKEN_EXPIRATION_DAYS = 30; // 30 days
 
   @Value("${jwt.secret}")
   private String jwtSecret;
 
   private Key secretKey;
+  private SecureRandom secureRandom;
 
   @PostConstruct
   public void init() {
     byte[] decodedKey = Base64.getDecoder().decode(jwtSecret);
     this.secretKey = Keys.hmacShaKeyFor(decodedKey);
+    this.secureRandom = new SecureRandom();
   }
 
-  public String generateToken(String userId) {
+  public String generateAccessToken(String userId) {
     Date now = new Date();
-    Date expirationDate = new Date(now.getTime() + EXPIRATION_MILLIS);
+    Date expirationDate = new Date(now.getTime() + ACCESS_TOKEN_EXPIRATION_MILLIS);
 
     return Jwts.builder()
         .setSubject(userId)
@@ -39,6 +44,21 @@ public class JwtTokenProvider {
         .setExpiration(expirationDate)
         .signWith(secretKey)
         .compact();
+  }
+
+  public String generateRefreshToken() {
+    byte[] randomBytes = new byte[32];
+    secureRandom.nextBytes(randomBytes);
+    return Base64.getUrlEncoder().withoutPadding().encodeToString(randomBytes);
+  }
+
+  public long getRefreshTokenExpirationDays() {
+    return REFRESH_TOKEN_EXPIRATION_DAYS;
+  }
+
+  // Mantener compatibilidad con código existente
+  public String generateToken(String userId) {
+    return generateAccessToken(userId);
   }
 
   public boolean validateToken(String token) {
