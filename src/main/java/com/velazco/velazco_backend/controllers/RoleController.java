@@ -17,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 public class RoleController {
   private final RoleService roleService;
 
-  @GetMapping("/")
+  @GetMapping
   public List<RoleDto> getAllRoles() {
     return roleService.getAllRoles();
   }

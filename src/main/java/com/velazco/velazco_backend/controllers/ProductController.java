@@ -21,6 +21,7 @@ import com.velazco.velazco_backend.dto.product.requests.ProductUpdateActiveReque
 import com.velazco.velazco_backend.dto.product.requests.ProductUpdateRequestDto;
 import com.velazco.velazco_backend.dto.product.responses.ProductCreateResponseDto;
 import com.velazco.velazco_backend.dto.product.responses.ProductListResponseDto;
+import com.velazco.velazco_backend.dto.product.responses.ProductLowStockResponseDto;
 import com.velazco.velazco_backend.dto.product.responses.ProductUpdateActiveResponseDto;
 import com.velazco.velazco_backend.dto.product.responses.ProductUpdateResponseDto;
 import com.velazco.velazco_backend.services.ProductService;
@@ -79,6 +80,11 @@ public class ProductController {
   public ResponseEntity<Void> deleteProduct(@PathVariable Long id) {
     productService.deleteProductById(id);
     return ResponseEntity.noContent().build();
+  }
+
+  @GetMapping("/low-stock")
+  public ResponseEntity<ProductLowStockResponseDto> getLowStockProducts() {
+    return ResponseEntity.ok(productService.getLowStockProducts());
   }
 
 }

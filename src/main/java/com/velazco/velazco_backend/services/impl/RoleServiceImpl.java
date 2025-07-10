@@ -1,6 +1,7 @@
 package com.velazco.velazco_backend.services.impl;
 
 import com.velazco.velazco_backend.dto.roles.response.RoleDto;
+import com.velazco.velazco_backend.entities.Role;
 import com.velazco.velazco_backend.mappers.RoleMapper;
 import com.velazco.velazco_backend.repositories.RoleRepository;
 import com.velazco.velazco_backend.services.RoleService;
@@ -20,6 +21,8 @@ public class RoleServiceImpl implements RoleService {
 
   @Override
   public List<RoleDto> getAllRoles() {
-    return roleMapper.toListDto(roleRepository.findAll());
+    List<Role> roles = roleRepository.findAll();
+    return roleMapper.toListDto(roles);
   }
+
 }

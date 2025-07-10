@@ -14,7 +14,8 @@ import lombok.Data;
 public class DailySaleResponseDto {
     private LocalDate date;
     private BigDecimal totalSales;
-
+    private Integer salesCount;
+    
     private List<ProductSold> products;
 
     @Data

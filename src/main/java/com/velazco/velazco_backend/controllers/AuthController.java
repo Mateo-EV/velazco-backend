@@ -26,6 +26,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthController {
 
   private final AuthService authService;
+  private final boolean isProduction = false;
 
   @Operation(summary = "Login endpoint", security = {})
   @PostMapping("/login")
@@ -35,7 +36,7 @@ public class AuthController {
 
     ResponseCookie cookie = ResponseCookie.from("velazco_token", loginResponse.getToken())
         .httpOnly(true)
-        .secure(true)
+        .secure(isProduction)
         .path("/")
         .maxAge(Duration.ofDays(1))
         .sameSite("Strict")
@@ -44,5 +45,21 @@ public class AuthController {
     response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
     return ResponseEntity.ok(Map.of("message", "Ingreso exitoso"));
+  }
+
+  @Operation(summary = "Logout endpoint", security = {})
+  @PostMapping("/logout")
+  public ResponseEntity<Map<String, String>> logout(HttpServletResponse response) {
+    ResponseCookie cookie = ResponseCookie.from("velazco_token", "")
+        .httpOnly(true)
+        .secure(isProduction)
+        .path("/")
+        .maxAge(0)
+        .sameSite("Strict")
+        .build();
+
+    response.setHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
+    return ResponseEntity.ok(Map.of("message", "Sesión cerrada"));
   }
 }

@@ -12,6 +12,9 @@ import com.velazco.velazco_backend.dto.order.responses.DeliveredOrderResponseDto
 import com.velazco.velazco_backend.dto.order.responses.OrderConfirmDispatchResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderConfirmSaleResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderStartResponseDto;
+import com.velazco.velazco_backend.dto.order.responses.PaymentMethodSummaryDto;
+import com.velazco.velazco_backend.dto.order.responses.TopProductDto;
+import com.velazco.velazco_backend.dto.order.responses.WeeklySaleResponseDto;
 import com.velazco.velazco_backend.entities.Order;
 import com.velazco.velazco_backend.entities.User;
 
@@ -38,5 +41,11 @@ public interface OrderService {
   PaginatedResponseDto<DeliveredOrderResponseDto> getDeliveredOrders(Pageable pageable);
 
   List<DailySaleResponseDto> getDailySalesDetailed();
+
+  List<WeeklySaleResponseDto> getWeeklySalesDetailed();
+
+  List<TopProductDto> getTopSellingProductsOfCurrentMonth();
+
+  List<PaymentMethodSummaryDto> getSalesByPaymentMethod();
 
 }
