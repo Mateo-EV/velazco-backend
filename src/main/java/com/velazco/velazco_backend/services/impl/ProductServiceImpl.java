@@ -24,6 +24,7 @@ import com.velazco.velazco_backend.exception.GeneralBadRequestException;
 import com.velazco.velazco_backend.mappers.ProductMapper;
 import com.velazco.velazco_backend.repositories.CategoryRepository;
 import com.velazco.velazco_backend.repositories.ProductRepository;
+import com.velazco.velazco_backend.services.EventPublisherService;
 import com.velazco.velazco_backend.services.ImageStorageService;
 import com.velazco.velazco_backend.services.ProductService;
 
@@ -39,6 +40,7 @@ public class ProductServiceImpl implements ProductService {
   private final CategoryRepository categoryRepository;
   private final ProductMapper productMapper;
   private final ImageStorageService imageStorageService;
+  private final EventPublisherService eventPublisherService;
 
   @Override
   public List<ProductListResponseDto> getAllProducts() {
@@ -79,7 +81,11 @@ public class ProductServiceImpl implements ProductService {
     product.setCategory(category);
 
     Product savedProduct = productRepository.save(product);
-    return productMapper.toCreateResponse(savedProduct);
+    ProductCreateResponseDto productMapped = productMapper.toCreateResponse(savedProduct);
+
+    eventPublisherService.publishProductCreated(productMapped);
+
+    return productMapped;
   }
 
   @Override
