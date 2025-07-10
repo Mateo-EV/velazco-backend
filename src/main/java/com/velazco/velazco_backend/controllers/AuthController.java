@@ -64,7 +64,6 @@ public class AuthController {
     String refreshToken = getRefreshTokenFromCookies(request);
     authService.logout(refreshToken);
 
-    // Eliminar cookies
     ResponseCookie accessTokenCookie = ResponseCookie.from("velazco_token", "")
         .httpOnly(true)
         .secure(true)
