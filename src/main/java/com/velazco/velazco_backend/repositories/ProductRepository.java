@@ -27,4 +27,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
   @Query("SELECT COUNT(p) > 0 FROM ProductionDetail p WHERE p.product.id = :productId")
   boolean hasProductionDetails(Long productId);
+
+  @Query("SELECT p FROM Product p WHERE p.stock < 10 AND p.active = true")
+  List<Product> findLowStockProducts();
+
 }

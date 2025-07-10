@@ -10,6 +10,9 @@ import com.velazco.velazco_backend.dto.order.responses.OrderConfirmDispatchRespo
 import com.velazco.velazco_backend.dto.order.responses.OrderConfirmSaleResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderListResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderStartResponseDto;
+import com.velazco.velazco_backend.dto.order.responses.PaymentMethodSummaryDto;
+import com.velazco.velazco_backend.dto.order.responses.TopProductDto;
+import com.velazco.velazco_backend.dto.order.responses.WeeklySaleResponseDto;
 import com.velazco.velazco_backend.entities.Order;
 import com.velazco.velazco_backend.entities.OrderDetail;
 import com.velazco.velazco_backend.entities.Product;
@@ -369,6 +372,7 @@ class OrderControllerTest {
     DailySaleResponseDto dailySale = DailySaleResponseDto.builder()
         .date(LocalDate.now())
         .totalSales(BigDecimal.valueOf(65.00))
+        .salesCount(4) // <- Asegúrate de incluir este nuevo campo
         .products(List.of(productSold1, productSold2))
         .build();
 
@@ -379,6 +383,7 @@ class OrderControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$[0].date").value(LocalDate.now().toString()))
         .andExpect(jsonPath("$[0].totalSales").value(65.00))
+        .andExpect(jsonPath("$[0].salesCount").value(4)) // <- Nuevo assert
         .andExpect(jsonPath("$[0].products[0].productName").value("Pan francés"))
         .andExpect(jsonPath("$[0].products[0].quantitySold").value(10))
         .andExpect(jsonPath("$[0].products[0].unitPrice").value(1.50))
@@ -387,6 +392,123 @@ class OrderControllerTest {
         .andExpect(jsonPath("$[0].products[1].quantitySold").value(2))
         .andExpect(jsonPath("$[0].products[1].unitPrice").value(25.00))
         .andExpect(jsonPath("$[0].products[1].subtotal").value(50.00));
+  }
+
+  @Test
+  @WithMockUser
+  void shouldReturnWeeklySalesDetailedSuccessfully() throws Exception {
+    // === Mock data ===
+    WeeklySaleResponseDto.ProductSold product1 = WeeklySaleResponseDto.ProductSold.builder()
+        .productName("Pan francés")
+        .quantitySold(2)
+        .unitPrice(BigDecimal.valueOf(2.0))
+        .subtotal(BigDecimal.valueOf(4.0))
+        .build();
+
+    WeeklySaleResponseDto.ProductSold product2 = WeeklySaleResponseDto.ProductSold.builder()
+        .productName("Torta de chocolate")
+        .quantitySold(1)
+        .unitPrice(BigDecimal.valueOf(20.0))
+        .subtotal(BigDecimal.valueOf(20.0))
+        .build();
+
+    WeeklySaleResponseDto.DeliveredOrder order1 = WeeklySaleResponseDto.DeliveredOrder.builder()
+        .orderId(1L)
+        .deliveryDate(LocalDate.of(2025, 7, 8))
+        .dayOfWeek("TUESDAY")
+        .orderTotal(BigDecimal.valueOf(24.0))
+        .products(List.of(product1, product2))
+        .build();
+
+    WeeklySaleResponseDto response = WeeklySaleResponseDto.builder()
+        .startDate(LocalDate.of(2025, 7, 8))
+        .endDate(LocalDate.of(2025, 7, 14))
+        .totalSales(BigDecimal.valueOf(24.0))
+        .salesCount(1)
+        .orders(List.of(order1))
+        .build();
+
+    // === Mocking service ===
+    Mockito.when(orderService.getWeeklySalesDetailed()).thenReturn(List.of(response));
+
+    // === Perform request ===
+    mockMvc.perform(get("/api/orders/weekly-sales/details"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].startDate").value("2025-07-08"))
+        .andExpect(jsonPath("$[0].endDate").value("2025-07-14"))
+        .andExpect(jsonPath("$[0].totalSales").value(24.0))
+        .andExpect(jsonPath("$[0].salesCount").value(1))
+        .andExpect(jsonPath("$[0].orders[0].orderId").value(1))
+        .andExpect(jsonPath("$[0].orders[0].dayOfWeek").value("TUESDAY"))
+        .andExpect(jsonPath("$[0].orders[0].products[0].productName").value("Pan francés"))
+        .andExpect(jsonPath("$[0].orders[0].products[1].productName").value("Torta de chocolate"));
+  }
+
+  @Test
+  @WithMockUser
+  void shouldReturnTopSellingProductsOfMonth() throws Exception {
+    TopProductDto topProduct1 = TopProductDto.builder()
+        .productName("Pan francés")
+        .totalQuantitySold(100)
+        .totalRevenue(BigDecimal.valueOf(150.00))
+        .build();
+
+    TopProductDto topProduct2 = TopProductDto.builder()
+        .productName("Pastel de chocolate")
+        .totalQuantitySold(50)
+        .totalRevenue(BigDecimal.valueOf(1250.00))
+        .build();
+
+    Mockito.when(orderService.getTopSellingProductsOfCurrentMonth())
+        .thenReturn(List.of(topProduct1, topProduct2));
+
+    mockMvc.perform(get("/api/orders/top-products/month"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].productName").value("Pan francés"))
+        .andExpect(jsonPath("$[0].totalQuantitySold").value(100))
+        .andExpect(jsonPath("$[0].totalRevenue").value(150.00))
+        .andExpect(jsonPath("$[1].productName").value("Pastel de chocolate"))
+        .andExpect(jsonPath("$[1].totalQuantitySold").value(50))
+        .andExpect(jsonPath("$[1].totalRevenue").value(1250.00));
+  }
+
+  @Test
+  @WithMockUser
+  void shouldReturnSalesByPaymentMethodSummary() throws Exception {
+
+    PaymentMethodSummaryDto efectivo = PaymentMethodSummaryDto.builder()
+        .paymentMethod("EFECTIVO")
+        .totalSales(BigDecimal.valueOf(1500.00))
+        .percentage(60.0)
+        .build();
+
+    PaymentMethodSummaryDto tarjeta = PaymentMethodSummaryDto.builder()
+        .paymentMethod("TARJETA")
+        .totalSales(BigDecimal.valueOf(800.00))
+        .percentage(32.0)
+        .build();
+
+    PaymentMethodSummaryDto transferencia = PaymentMethodSummaryDto.builder()
+        .paymentMethod("TRANSFERENCIA")
+        .totalSales(BigDecimal.valueOf(200.00))
+        .percentage(8.0)
+        .build();
+
+    List<PaymentMethodSummaryDto> response = List.of(efectivo, tarjeta, transferencia);
+
+    Mockito.when(orderService.getSalesByPaymentMethod()).thenReturn(response);
+
+    mockMvc.perform(get("/api/orders/payment-methods/summary"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].paymentMethod").value("EFECTIVO"))
+        .andExpect(jsonPath("$[0].totalSales").value(1500.00))
+        .andExpect(jsonPath("$[0].percentage").value(60.0))
+        .andExpect(jsonPath("$[1].paymentMethod").value("TARJETA"))
+        .andExpect(jsonPath("$[1].totalSales").value(800.00))
+        .andExpect(jsonPath("$[1].percentage").value(32.0))
+        .andExpect(jsonPath("$[2].paymentMethod").value("TRANSFERENCIA"))
+        .andExpect(jsonPath("$[2].totalSales").value(200.00))
+        .andExpect(jsonPath("$[2].percentage").value(8.0));
   }
 
 }

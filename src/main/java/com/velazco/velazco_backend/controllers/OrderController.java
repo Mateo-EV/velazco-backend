@@ -9,6 +9,9 @@ import com.velazco.velazco_backend.dto.order.responses.OrderConfirmDispatchRespo
 import com.velazco.velazco_backend.dto.order.responses.OrderConfirmSaleResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderListResponseDto;
 import com.velazco.velazco_backend.dto.order.responses.OrderStartResponseDto;
+import com.velazco.velazco_backend.dto.order.responses.PaymentMethodSummaryDto;
+import com.velazco.velazco_backend.dto.order.responses.TopProductDto;
+import com.velazco.velazco_backend.dto.order.responses.WeeklySaleResponseDto;
 import com.velazco.velazco_backend.entities.Order;
 import com.velazco.velazco_backend.entities.User;
 import com.velazco.velazco_backend.services.OrderService;
@@ -111,6 +114,21 @@ public class OrderController {
   @GetMapping("/daily-sales/details")
   public ResponseEntity<List<DailySaleResponseDto>> getDailySalesDetailed() {
     return ResponseEntity.ok(orderService.getDailySalesDetailed());
+  }
+
+  @GetMapping("/weekly-sales/details")
+  public List<WeeklySaleResponseDto> getWeeklySalesDetailed() {
+    return orderService.getWeeklySalesDetailed();
+  }
+
+  @GetMapping("/top-products/month")
+  public ResponseEntity<List<TopProductDto>> getTopSellingProductsOfMonth() {
+    return ResponseEntity.ok(orderService.getTopSellingProductsOfCurrentMonth());
+  }
+
+  @GetMapping("/payment-methods/summary")
+  public ResponseEntity<List<PaymentMethodSummaryDto>> getSalesByPaymentMethod() {
+    return ResponseEntity.ok(orderService.getSalesByPaymentMethod());
   }
 
 }
