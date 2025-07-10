@@ -5,9 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.velazco.velazco_backend.dto.auth.request.AuthLoginRequestDto;
-import com.velazco.velazco_backend.dto.auth.request.RefreshTokenRequestDto;
 import com.velazco.velazco_backend.dto.auth.response.AuthLoginResponse;
-import com.velazco.velazco_backend.dto.auth.response.RefreshTokenResponse;
 import com.velazco.velazco_backend.entities.RefreshToken;
 import com.velazco.velazco_backend.entities.User;
 import com.velazco.velazco_backend.exception.GeneralBadRequestException;
@@ -54,32 +52,6 @@ public class AuthServiceImpl implements AuthService {
     return AuthLoginResponse.builder()
         .accessToken(accessToken)
         .refreshToken(refreshToken.getToken())
-        .build();
-  }
-
-  @Override
-  @Transactional
-  public RefreshTokenResponse refreshToken(RefreshTokenRequestDto request, HttpServletRequest httpRequest) {
-    RefreshToken refreshToken = refreshTokenService.findByToken(request.getRefreshToken());
-    refreshTokenService.verifyExpiration(refreshToken);
-
-    User user = refreshToken.getUser();
-
-    if (!user.getActive()) {
-      throw new GeneralBadRequestException("Usuario inactivo");
-    }
-
-    // Revocar el refresh token actual
-    refreshTokenService.revokeRefreshToken(refreshToken.getToken());
-
-    // Generar nuevos tokens
-    String newAccessToken = jwtTokenProvider.generateAccessToken(String.valueOf(user.getId()));
-    String deviceInfo = getDeviceInfo(httpRequest);
-    RefreshToken newRefreshToken = refreshTokenService.createRefreshToken(user, deviceInfo);
-
-    return RefreshTokenResponse.builder()
-        .accessToken(newAccessToken)
-        .refreshToken(newRefreshToken.getToken())
         .build();
   }
 

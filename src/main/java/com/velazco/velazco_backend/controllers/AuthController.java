@@ -12,9 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.velazco.velazco_backend.dto.auth.request.AuthLoginRequestDto;
-import com.velazco.velazco_backend.dto.auth.request.RefreshTokenRequestDto;
 import com.velazco.velazco_backend.dto.auth.response.AuthLoginResponse;
-import com.velazco.velazco_backend.dto.auth.response.RefreshTokenResponse;
 import com.velazco.velazco_backend.services.AuthService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -38,7 +36,6 @@ public class AuthController {
 
     AuthLoginResponse loginResponse = authService.login(request, httpRequest);
 
-    // Configurar cookie para access token (1 hora)
     ResponseCookie accessTokenCookie = ResponseCookie.from("velazco_token", loginResponse.getAccessToken())
         .httpOnly(true)
         .secure(true)
@@ -47,7 +44,6 @@ public class AuthController {
         .sameSite("Strict")
         .build();
 
-    // Configurar cookie para refresh token (30 días)
     ResponseCookie refreshTokenCookie = ResponseCookie.from("velazco_refresh_token", loginResponse.getRefreshToken())
         .httpOnly(true)
         .secure(true)
@@ -62,48 +58,6 @@ public class AuthController {
     return ResponseEntity.ok(Map.of("message", "Ingreso exitoso"));
   }
 
-  @Operation(summary = "Refresh token endpoint", security = {})
-  @PostMapping("/refresh")
-  public ResponseEntity<Map<String, String>> refreshToken(@Valid @RequestBody RefreshTokenRequestDto request,
-      HttpServletRequest httpRequest, HttpServletResponse response) {
-
-    // Si no se proporciona refresh token en el body, intentar obtenerlo de las
-    // cookies
-    String refreshToken = request.getRefreshToken();
-    if (refreshToken == null || refreshToken.isEmpty()) {
-      refreshToken = getRefreshTokenFromCookies(httpRequest);
-      if (refreshToken == null) {
-        return ResponseEntity.badRequest().body(Map.of("message", "Refresh token requerido"));
-      }
-      request.setRefreshToken(refreshToken);
-    }
-
-    RefreshTokenResponse tokenResponse = authService.refreshToken(request, httpRequest);
-
-    // Configurar nuevas cookies
-    ResponseCookie accessTokenCookie = ResponseCookie.from("velazco_token", tokenResponse.getAccessToken())
-        .httpOnly(true)
-        .secure(true)
-        .path("/")
-        .maxAge(Duration.ofHours(1))
-        .sameSite("Strict")
-        .build();
-
-    ResponseCookie refreshTokenCookie = ResponseCookie.from("velazco_refresh_token", tokenResponse.getRefreshToken())
-        .httpOnly(true)
-        .secure(true)
-        .path("/")
-        .maxAge(Duration.ofDays(30))
-        .sameSite("Strict")
-        .build();
-
-    response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
-    response.addHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
-
-    return ResponseEntity.ok(Map.of("message", "Tokens renovados exitosamente"));
-  }
-
-  @Operation(summary = "Logout endpoint")
   @PostMapping("/logout")
   public ResponseEntity<Map<String, String>> logout(HttpServletRequest request, HttpServletResponse response) {
 

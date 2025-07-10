@@ -1,21 +1,20 @@
-package com.velazco.velazco_backend.services.impl;
+package com.velazco.velazco_backend.tasks;
 
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import com.velazco.velazco_backend.services.RefreshTokenService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-@Service
+@Component
 @RequiredArgsConstructor
 @Slf4j
-public class TokenCleanupService {
+public class TokenCleanupScheduler {
 
   private final RefreshTokenService refreshTokenService;
 
-  // Ejecutar cada día a la medianoche
   @Scheduled(cron = "0 0 0 * * ?")
   public void cleanupExpiredTokens() {
     log.info("Iniciando limpieza de refresh tokens expirados");
