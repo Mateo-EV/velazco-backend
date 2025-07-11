@@ -110,9 +110,12 @@ public class ProductServiceImpl implements ProductService {
     updated.setImage(imagePath);
     updated.setOrderDetails(existing.getOrderDetails());
     updated.setProductionDetails(existing.getProductionDetails());
-
     Product savedProduct = productRepository.save(updated);
-    return productMapper.toUpdateResponse(savedProduct);
+    ProductUpdateResponseDto response = productMapper.toUpdateResponse(savedProduct);
+
+    eventPublisherService.publishProductUpdated(response);
+
+    return response;
   }
 
   @Override
@@ -126,9 +129,13 @@ public class ProductServiceImpl implements ProductService {
           "No se puede eliminar un producto que tiene órdenes o detalles de producción asociados");
     }
 
-    productRepository.delete(product);
+    // Crear el DTO de respuesta antes de eliminar
+    ProductCreateResponseDto deletedProduct = productMapper.toCreateResponse(product);
 
+    productRepository.delete(product);
     imageStorageService.delete(product.getImage());
+
+    eventPublisherService.publishProductDeleted(deletedProduct);
   }
 
   @Override
@@ -139,7 +146,10 @@ public class ProductServiceImpl implements ProductService {
     product.setActive(active);
     Product updated = productRepository.save(product);
 
-    return productMapper.toUpdateActiveResponse(updated);
+    ProductUpdateActiveResponseDto response = productMapper.toUpdateActiveResponse(updated);
+    eventPublisherService.publishProductActiveUpdated(response);
+
+    return response;
   }
 
   @Override

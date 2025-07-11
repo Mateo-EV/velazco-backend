@@ -37,6 +37,7 @@ import com.velazco.velazco_backend.repositories.DispatchRepository;
 import com.velazco.velazco_backend.repositories.OrderRepository;
 import com.velazco.velazco_backend.repositories.ProductRepository;
 import com.velazco.velazco_backend.repositories.SaleRepository;
+import com.velazco.velazco_backend.services.EventPublisherService;
 import com.velazco.velazco_backend.services.OrderService;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -51,6 +52,7 @@ public class OrderServiceImpl implements OrderService {
   private final SaleRepository saleRepository;
   private final ProductRepository productRepository;
   private final DispatchRepository dispatchRepository;
+  private final EventPublisherService eventPublisherService;
 
   private final OrderMapper orderMapper;
 
@@ -103,6 +105,11 @@ public class OrderServiceImpl implements OrderService {
         throw new EntityNotFoundException("Product not found with ID: " + productId);
       }
 
+      // Publish stock change event
+      Product updatedProduct = productRepository.findById(productId)
+          .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+      eventPublisherService.publishProductStockChanged(updatedProduct, "ORDER_STARTED");
+
       detail.setOrder(order);
       detail.setProduct(product);
       detail.setUnitPrice(product.getPrice());
@@ -110,7 +117,11 @@ public class OrderServiceImpl implements OrderService {
     }
 
     Order savedOrder = orderRepository.save(order);
-    return orderMapper.toStartResponse(savedOrder);
+    OrderStartResponseDto response = orderMapper.toStartResponse(savedOrder);
+
+    eventPublisherService.publishOrderStarted(response);
+
+    return response;
   }
 
   @Transactional
@@ -142,11 +153,15 @@ public class OrderServiceImpl implements OrderService {
             .cashier(cashier)
             .order(order)
             .build());
-
     order.setSale(sale);
     orderRepository.save(order);
 
-    return orderMapper.toConfirmSaleResponse(order);
+    OrderConfirmSaleResponseDto response = orderMapper.toConfirmSaleResponse(order);
+
+    eventPublisherService.publishSaleCreated(sale);
+    eventPublisherService.publishOrderSaleConfirmed(response);
+
+    return response;
   }
 
   @Override
@@ -175,12 +190,16 @@ public class OrderServiceImpl implements OrderService {
             .order(order)
             .dispatchedBy(dispatchedBy)
             .build());
-
     order.setDispatch(dispatch);
 
     orderRepository.save(order);
 
-    return orderMapper.toConfirmDispatchResponse(order);
+    OrderConfirmDispatchResponseDto response = orderMapper.toConfirmDispatchResponse(order);
+
+    eventPublisherService.publishDispatchCreated(dispatch);
+    eventPublisherService.publishOrderDispatchConfirmed(response);
+
+    return response;
   }
 
   @Transactional
@@ -191,9 +210,7 @@ public class OrderServiceImpl implements OrderService {
 
     if (order.getStatus() != Order.OrderStatus.PENDIENTE) {
       throw new IllegalStateException("El pedido no puede ser cancelado porque ya está " + order.getStatus());
-    }
-
-    // Restaurar stock de cada producto del pedido
+    } // Restaurar stock de cada producto del pedido
     for (OrderDetail detail : order.getDetails()) {
       Long productId = detail.getProduct().getId();
       int quantity = detail.getQuantity();
@@ -202,11 +219,18 @@ public class OrderServiceImpl implements OrderService {
       if (updatedRows == 0) {
         throw new EntityNotFoundException("Product not found with ID: " + productId);
       }
+
+      // Publish stock change event
+      Product updatedProduct = productRepository.findById(productId)
+          .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+      eventPublisherService.publishProductStockChanged(updatedProduct, "ORDER_CANCELLED");
     }
 
     // Cambiar estado del pedido a CANCELADO
     order.setStatus(Order.OrderStatus.CANCELADO);
     orderRepository.save(order);
+
+    eventPublisherService.publishOrderCancelled(orderMapper.toStartResponse(order));
   }
 
   @Override

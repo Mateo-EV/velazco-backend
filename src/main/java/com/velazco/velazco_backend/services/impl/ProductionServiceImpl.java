@@ -22,6 +22,7 @@ import com.velazco.velazco_backend.mappers.ProductionMapper;
 import com.velazco.velazco_backend.repositories.ProductRepository;
 import com.velazco.velazco_backend.repositories.ProductionRepository;
 import com.velazco.velazco_backend.repositories.UserRepository;
+import com.velazco.velazco_backend.services.EventPublisherService;
 import com.velazco.velazco_backend.services.ProductionService;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -43,6 +44,7 @@ public class ProductionServiceImpl implements ProductionService {
   private final ProductionRepository productionRepository;
   private final UserRepository userRepository;
   private final ProductRepository productRepository;
+  private final EventPublisherService eventPublisherService;
 
   private final ProductionMapper productionMapper;
 
@@ -122,7 +124,11 @@ public class ProductionServiceImpl implements ProductionService {
     }
 
     Production savedProduction = productionRepository.save(production);
-    return productionMapper.toCreateResponseDto(savedProduction);
+    ProductionCreateResponseDto response = productionMapper.toCreateResponseDto(savedProduction);
+
+    eventPublisherService.publishProductionCreated(response);
+
+    return response;
   }
 
   @Override
@@ -130,7 +136,11 @@ public class ProductionServiceImpl implements ProductionService {
     Production production = productionRepository.findById(productionId)
         .orElseThrow(() -> new EntityNotFoundException("Production not found"));
 
+    ProductionCreateResponseDto deletedProduction = productionMapper.toCreateResponseDto(production);
+
     productionRepository.delete(production);
+
+    eventPublisherService.publishProductionDeleted(deletedProduction);
   }
 
   @Override
@@ -178,7 +188,11 @@ public class ProductionServiceImpl implements ProductionService {
     }
 
     Production savedProduction = productionRepository.save(existing);
-    return productionMapper.toUpdateResponseDto(savedProduction);
+    ProductionUpdateResponseDto response = productionMapper.toUpdateResponseDto(savedProduction);
+
+    eventPublisherService.publishProductionUpdated(response);
+
+    return response;
   }
 
   @Override
@@ -260,6 +274,9 @@ public class ProductionServiceImpl implements ProductionService {
       product.setStock(nuevoStock);
       productRepository.save(product);
 
+      // Publish stock change event
+      eventPublisherService.publishProductStockChanged(product, "PRODUCTION_FINALIZED");
+
       resultados.add(ProductionFinalizeResponseDto.ProductResult.builder()
           .productId(dto.getProductId())
           .cantidadProducida(dto.getProducedQuantity())
@@ -271,11 +288,15 @@ public class ProductionServiceImpl implements ProductionService {
     production.setStatus(todosCompletos ? ProductionStatus.COMPLETO : ProductionStatus.INCOMPLETO);
     productionRepository.save(production);
 
-    return ProductionFinalizeResponseDto.builder()
+    ProductionFinalizeResponseDto response = ProductionFinalizeResponseDto.builder()
         .productionId(production.getId())
         .estadoFinal(production.getStatus().name())
         .productos(resultados)
         .build();
+
+    eventPublisherService.publishProductionFinalized(response);
+
+    return response;
   }
 
 }

@@ -9,6 +9,7 @@ import com.velazco.velazco_backend.entities.Category;
 import com.velazco.velazco_backend.mappers.CategoryMapper;
 import com.velazco.velazco_backend.repositories.CategoryRepository;
 import com.velazco.velazco_backend.services.CategoryService;
+import com.velazco.velazco_backend.services.EventPublisherService;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -21,10 +22,13 @@ public class CategoryServiceImpl implements CategoryService {
 
   private final CategoryRepository categoryRepository;
   private final CategoryMapper categoryMapper;
+  private final EventPublisherService eventPublisherService;
 
-  public CategoryServiceImpl(CategoryRepository categoryRepository, CategoryMapper categoryMapper) {
+  public CategoryServiceImpl(CategoryRepository categoryRepository, CategoryMapper categoryMapper,
+      EventPublisherService eventPublisherService) {
     this.categoryRepository = categoryRepository;
     this.categoryMapper = categoryMapper;
+    this.eventPublisherService = eventPublisherService;
   }
 
   @Override
@@ -43,7 +47,11 @@ public class CategoryServiceImpl implements CategoryService {
   public CategoryCreateResponseDto createCategory(CategoryCreateRequestDto dto) {
     Category category = categoryMapper.toEntity(dto);
     Category saved = categoryRepository.save(category);
-    return categoryMapper.toCreateResponse(saved);
+    CategoryCreateResponseDto response = categoryMapper.toCreateResponse(saved);
+
+    eventPublisherService.publishCategoryCreated(response);
+
+    return response;
   }
 
   @Override
@@ -51,12 +59,20 @@ public class CategoryServiceImpl implements CategoryService {
     Category existing = getCategoryById(id);
     existing.setName(dto.getName());
     Category updated = categoryRepository.save(existing);
-    return categoryMapper.toUpdateResponse(updated);
+    CategoryUpdateResponseDto response = categoryMapper.toUpdateResponse(updated);
+
+    eventPublisherService.publishCategoryUpdated(response);
+
+    return response;
   }
 
   @Override
   public void deleteCategoryById(Long id) {
     Category category = getCategoryById(id);
+    CategoryCreateResponseDto deletedCategory = categoryMapper.toCreateResponse(category);
+
     categoryRepository.delete(category);
+
+    eventPublisherService.publishCategoryDeleted(deletedCategory);
   }
 }

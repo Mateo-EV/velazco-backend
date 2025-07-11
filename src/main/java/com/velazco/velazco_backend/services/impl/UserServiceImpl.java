@@ -11,6 +11,7 @@ import com.velazco.velazco_backend.exception.GeneralBadRequestException;
 import com.velazco.velazco_backend.mappers.UserMapper;
 import com.velazco.velazco_backend.repositories.RoleRepository;
 import com.velazco.velazco_backend.repositories.UserRepository;
+import com.velazco.velazco_backend.services.EventPublisherService;
 import com.velazco.velazco_backend.services.UserService;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
   private final UserRepository userRepository;
   private final RoleRepository roleRepository;
+  private final EventPublisherService eventPublisherService;
 
   private final UserMapper userMapper;
 
@@ -48,7 +50,10 @@ public class UserServiceImpl implements UserService {
     user.setPassword(passwordEncoder.encode(user.getPassword()));
     userRepository.save(user);
 
-    return userMapper.toUserCreateResponse(user);
+    UserCreateResponseDto response = userMapper.toUserCreateResponse(user);
+    eventPublisherService.publishUserCreated(response);
+
+    return response;
   }
 
   @Override
@@ -68,7 +73,10 @@ public class UserServiceImpl implements UserService {
       existing.setPassword(passwordEncoder.encode(request.getPassword()));
     }
 
-    return userMapper.toUserUpdateResponse(userRepository.save(existing));
+    UserUpdateResponseDto response = userMapper.toUserUpdateResponse(userRepository.save(existing));
+    eventPublisherService.publishUserUpdated(response);
+
+    return response;
   }
 
   @Override
@@ -77,7 +85,9 @@ public class UserServiceImpl implements UserService {
         .orElseThrow(() -> new EntityNotFoundException("User not found"));
 
     try {
+      UserCreateResponseDto deletedUser = userMapper.toUserCreateResponse(user);
       userRepository.delete(user);
+      eventPublisherService.publishUserDeleted(deletedUser);
     } catch (Exception e) {
       throw new GeneralBadRequestException("No se puede eliminar el usuario porque está asociado a otros registros");
     }
