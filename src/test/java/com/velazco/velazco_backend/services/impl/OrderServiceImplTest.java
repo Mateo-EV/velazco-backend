@@ -6,11 +6,9 @@ import com.velazco.velazco_backend.entities.Product;
 import com.velazco.velazco_backend.repositories.OrderRepository;
 import com.velazco.velazco_backend.repositories.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.Collections;
-import static org.mockito.Mockito.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 @ExtendWith(MockitoExtension.class)

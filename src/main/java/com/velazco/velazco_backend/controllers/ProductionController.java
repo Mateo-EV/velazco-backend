@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,18 +40,21 @@ import lombok.RequiredArgsConstructor;
 public class ProductionController {
   private final ProductionService productionService;
 
+  @PreAuthorize("hasAnyRole('Administrador','Producción')")
   @GetMapping("/pending")
   public ResponseEntity<List<ProductionPendingResponseDto>> getPendingProductions() {
     List<ProductionPendingResponseDto> response = productionService.getPendingProductions();
     return ResponseEntity.ok(response);
   }
 
+  @PreAuthorize("hasAnyRole('Administrador','Producción')")
   @GetMapping("/in-process")
   public ResponseEntity<List<ProductionProcessResponseDto>> getProductionsInProcess() {
     List<ProductionProcessResponseDto> response = productionService.getProductionsInProcess();
     return ResponseEntity.ok(response);
   }
 
+  @PreAuthorize("hasRole('Administrador')")
   @PostMapping
   public ResponseEntity<ProductionCreateResponseDto> createProduction(
       @AuthenticationPrincipal User user,
@@ -59,12 +63,14 @@ public class ProductionController {
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
 
+  @PreAuthorize("hasRole('Administrador')")
   @DeleteMapping("/{id}")
   ResponseEntity<Void> deleteProduction(@PathVariable Long id) {
     productionService.deleteProductionById(id);
     return ResponseEntity.noContent().build();
   }
 
+  @PreAuthorize("hasRole('Administrador')")
   @PutMapping("/{id}")
   public ResponseEntity<ProductionUpdateResponseDto> updateProduction(
       @PathVariable Long id,
@@ -74,16 +80,19 @@ public class ProductionController {
     return ResponseEntity.ok(response);
   }
 
+  @PreAuthorize("hasAnyRole('Administrador','Producción')")
   @GetMapping("/daily")
   public List<ProductionDailyResponseDto> getDailyProductions() {
     return productionService.getDailyProductions();
   }
 
+  @PreAuthorize("hasAnyRole('Administrador','Producción')")
   @GetMapping("/history")
   public ResponseEntity<List<ProductionHistoryResponseDto>> getCompleteAndIncompleteHistory() {
     return ResponseEntity.ok(productionService.getCompletedAndIncompleteOrders());
   }
 
+  @PreAuthorize("hasAnyRole('Administrador','Producción')")
   @PatchMapping("/{id}/status")
   public ResponseEntity<ProductionStatusUpdateResponseDto> updateProductionStatus(
       @PathVariable Long id,
@@ -92,6 +101,7 @@ public class ProductionController {
     return ResponseEntity.ok(response);
   }
 
+  @PreAuthorize("hasAnyRole('Administrador','Producción')")
   @PatchMapping("/{id}/finalize")
   public ResponseEntity<ProductionFinalizeResponseDto> finalizeProduction(
       @PathVariable Long id,

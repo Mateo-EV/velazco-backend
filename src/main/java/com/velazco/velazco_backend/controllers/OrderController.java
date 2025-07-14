@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,6 +46,7 @@ public class OrderController {
     this.orderService = orderService;
   }
 
+  @PreAuthorize("hasAnyRole('Administrador','Cajero')")
   @GetMapping("/status/{status}")
   public ResponseEntity<PaginatedResponseDto<OrderListResponseDto>> getOrdersByStatus(
       @PathVariable String status,
@@ -63,6 +65,7 @@ public class OrderController {
     return ResponseEntity.ok(orderService.getOrdersByStatus(orderStatus, pageable));
   }
 
+  @PreAuthorize("hasAnyRole('Administrador','Entregas')")
   @GetMapping("/delivered")
   public ResponseEntity<PaginatedResponseDto<DeliveredOrderResponseDto>> getDeliveredOrders(
       @RequestParam(defaultValue = "0") int page,
@@ -73,6 +76,7 @@ public class OrderController {
     return ResponseEntity.ok(orderService.getDeliveredOrders(pageable));
   }
 
+  @PreAuthorize("hasAnyRole('Administrador','Vendedor')")
   @PostMapping("/start")
   public ResponseEntity<OrderStartResponseDto> startOrder(
       @AuthenticationPrincipal User user,
@@ -83,6 +87,7 @@ public class OrderController {
     return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
   }
 
+  @PreAuthorize("hasAnyRole('Administrador', 'Cajero')")
   @PostMapping("/{id}/confirm-sale")
   public ResponseEntity<OrderConfirmSaleResponseDto> confirmSale(
       @PathVariable Long id,
@@ -94,6 +99,7 @@ public class OrderController {
     return ResponseEntity.status(HttpStatus.CREATED).body(responseDto);
   }
 
+  @PreAuthorize("hasAnyRole('Administrador','Entregas')")
   @PostMapping("/{id}/confirm-dispatch")
   public ResponseEntity<OrderConfirmDispatchResponseDto> confirmDispatch(
       @PathVariable Long id,
@@ -105,27 +111,32 @@ public class OrderController {
 
   }
 
+  @PreAuthorize("hasAnyRole('Administrador','Cajero')")
   @PutMapping("/{id}/cancel")
   public ResponseEntity<Void> cancelOrder(@PathVariable Long id) {
     orderService.cancelOrder(id);
     return ResponseEntity.noContent().build();
   }
 
+  @PreAuthorize("hasRole('Administrador')")
   @GetMapping("/daily-sales/details")
   public ResponseEntity<List<DailySaleResponseDto>> getDailySalesDetailed() {
     return ResponseEntity.ok(orderService.getDailySalesDetailed());
   }
 
+  @PreAuthorize("hasRole('Administrador')")
   @GetMapping("/weekly-sales/details")
   public List<WeeklySaleResponseDto> getWeeklySalesDetailed() {
     return orderService.getWeeklySalesDetailed();
   }
 
+  @PreAuthorize("hasRole('Administrador')")
   @GetMapping("/top-products/month")
   public ResponseEntity<List<TopProductDto>> getTopSellingProductsOfMonth() {
     return ResponseEntity.ok(orderService.getTopSellingProductsOfCurrentMonth());
   }
 
+  @PreAuthorize("hasRole('Administrador')")
   @GetMapping("/payment-methods/summary")
   public ResponseEntity<List<PaymentMethodSummaryDto>> getSalesByPaymentMethod() {
     return ResponseEntity.ok(orderService.getSalesByPaymentMethod());
