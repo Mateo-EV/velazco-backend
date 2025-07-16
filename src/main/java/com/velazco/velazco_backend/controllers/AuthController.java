@@ -41,7 +41,7 @@ public class AuthController {
         .secure(true)
         .path("/")
         .maxAge(Duration.ofHours(1))
-        .sameSite("Strict")
+        .sameSite("None")
         .build();
 
     ResponseCookie refreshTokenCookie = ResponseCookie.from("velazco_refresh_token", loginResponse.getRefreshToken())
@@ -49,7 +49,7 @@ public class AuthController {
         .secure(true)
         .path("/")
         .maxAge(Duration.ofDays(30))
-        .sameSite("Strict")
+        .sameSite("None")
         .build();
 
     response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
@@ -69,7 +69,7 @@ public class AuthController {
         .secure(true)
         .path("/")
         .maxAge(Duration.ZERO)
-        .sameSite("Strict")
+        .sameSite("None")
         .build();
 
     ResponseCookie refreshTokenCookie = ResponseCookie.from("velazco_refresh_token", "")
@@ -77,7 +77,7 @@ public class AuthController {
         .secure(true)
         .path("/")
         .maxAge(Duration.ZERO)
-        .sameSite("Strict")
+        .sameSite("None")
         .build();
 
     response.addHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
