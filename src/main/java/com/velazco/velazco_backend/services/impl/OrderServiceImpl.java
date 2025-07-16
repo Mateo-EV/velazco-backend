@@ -104,11 +104,9 @@ public class OrderServiceImpl implements OrderService {
       if (product == null) {
         throw new EntityNotFoundException("Product not found with ID: " + productId);
       }
+      product.setStock(product.getStock() - quantity);
 
-      // Publish stock change event
-      Product updatedProduct = productRepository.findById(productId)
-          .orElseThrow(() -> new EntityNotFoundException("Product not found"));
-      eventPublisherService.publishProductStockChanged(updatedProduct, "ORDER_STARTED");
+      eventPublisherService.publishProductStockChanged(product, "ORDER_STARTED");
 
       detail.setOrder(order);
       detail.setProduct(product);
