@@ -46,7 +46,7 @@ public class OrderController {
     this.orderService = orderService;
   }
 
-  @PreAuthorize("hasAnyRole('Administrador','Cajero')")
+  @PreAuthorize("hasAnyRole('Administrador','Cajero','Entregas')")
   @GetMapping("/status/{status}")
   public ResponseEntity<PaginatedResponseDto<OrderListResponseDto>> getOrdersByStatus(
       @PathVariable String status,
